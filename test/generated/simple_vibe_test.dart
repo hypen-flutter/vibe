@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:equatable/equatable.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:vibe/annotations/annotations.dart';
@@ -12,12 +12,12 @@ int main() {
       counter = $Counter();
     });
     test('can generate a stream initialization code ', () {
-      expect(counter.stream, isA<Stream<Counter>>());
+      expect(counter.stream, isA<Stream>());
     });
 
     test('can have a initial value', () {
-      final value = counter.subject.value;
-      expect(value, isA<Counter>());
+      final cb = expectAsync1((c) => expect(c, isA<Counter>()));
+      counter.stream.listen(cb);
     });
 
     test('can notify the change on increase()', () {
@@ -38,6 +38,19 @@ int main() {
       counter.count++;
       expect(counter.count, equals(1));
     });
+
+    test('does not notify when change the NotVibe', () {
+      final cb = expectAsync1((_) {}, count: 1);
+      counter.stream.listen(cb);
+      counter.nothing++;
+      expect(counter.nothing, equals(1));
+    });
+    test('does not notify on increaseNothing()', () {
+      final cb = expectAsync1((_) {}, count: 1);
+      counter.stream.listen(cb);
+      counter.increaseNothing();
+      expect(counter.nothing, equals(1));
+    });
   });
   return 0;
 }
@@ -45,13 +58,22 @@ int main() {
 @Vibe()
 class Counter {
   int count = 0;
+
+  @NotVibe()
+  int nothing = 0;
   void increase() => ++count;
   void decrease() => --count;
+  void increaseNothing() => ++nothing;
 }
 
-class $Counter with EquatableMixin implements Counter {
-  late final subject = BehaviorSubject<Counter>()..add(src);
-  late final stream = subject.distinct();
+class $Counter implements Counter {
+  $Counter() {
+    notify();
+  }
+  final subject = BehaviorSubject<List>();
+  final equality = const DeepCollectionEquality();
+  late final stream =
+      subject.distinct(equality.equals).map((event) => event[0]);
 
   Counter src = Counter();
 
@@ -61,6 +83,15 @@ class $Counter with EquatableMixin implements Counter {
   @override
   set count(val) {
     src.count = val;
+    notify();
+  }
+
+  @override
+  int get nothing => src.nothing;
+
+  @override
+  set nothing(val) {
+    src.nothing = val;
     notify();
   }
 
@@ -76,10 +107,13 @@ class $Counter with EquatableMixin implements Counter {
     notify();
   }
 
-  void notify() {
-    subject.add(this);
+  @override
+  void increaseNothing() {
+    src.increaseNothing();
+    notify();
   }
 
-  @override
-  List<Object?> get props => [count];
+  void notify() {
+    subject.add([this, count]);
+  }
 }
