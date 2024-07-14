@@ -1,17 +1,17 @@
-class VibeSet<T> implements Set<T> {
+class VibeSet<E> implements Set<E> {
   @override
-  bool add(T value) {
+  bool add(E value) {
     // TODO: implement add
     throw UnimplementedError();
   }
 
   @override
-  void addAll(Iterable<T> elements) {
+  void addAll(Iterable<E> elements) {
     // TODO: implement addAll
   }
 
   @override
-  bool any(bool Function(T element) test) {
+  bool any(bool Function(E element) test) {
     // TODO: implement any
     throw UnimplementedError();
   }
@@ -40,58 +40,58 @@ class VibeSet<T> implements Set<T> {
   }
 
   @override
-  Set<T> difference(Set<Object?> other) {
+  Set<E> difference(Set<Object?> other) {
     // TODO: implement difference
     throw UnimplementedError();
   }
 
   @override
-  T elementAt(int index) {
+  E elementAt(int index) {
     // TODO: implement elementAt
     throw UnimplementedError();
   }
 
   @override
-  bool every(bool Function(T element) test) {
+  bool every(bool Function(E element) test) {
     // TODO: implement every
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> expand<T>(Iterable<T> Function(T element) toElements) {
+  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) {
     // TODO: implement expand
     throw UnimplementedError();
   }
 
   @override
   // TODO: implement first
-  T get first => throw UnimplementedError();
+  E get first => throw UnimplementedError();
 
   @override
-  T firstWhere(bool Function(T element) test, {T Function()? orElse}) {
+  E firstWhere(bool Function(E element) test, {E Function()? orElse}) {
     // TODO: implement firstWhere
     throw UnimplementedError();
   }
 
   @override
-  T fold<T>(T initialValue, T Function(T previousValue, T element) combine) {
+  T fold<T>(T initialValue, T Function(T previousValue, E element) combine) {
     // TODO: implement fold
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> followedBy(Iterable<T> other) {
+  Iterable<E> followedBy(Iterable<E> other) {
     // TODO: implement followedBy
     throw UnimplementedError();
   }
 
   @override
-  void forEach(void Function(T element) action) {
+  void forEach(void Function(E element) action) {
     // TODO: implement forEach
   }
 
   @override
-  Set<T> intersection(Set<Object?> other) {
+  Set<E> intersection(Set<Object?> other) {
     // TODO: implement intersection
     throw UnimplementedError();
   }
@@ -106,7 +106,7 @@ class VibeSet<T> implements Set<T> {
 
   @override
   // TODO: implement iterator
-  Iterator<T> get iterator => throw UnimplementedError();
+  Iterator<E> get iterator => throw UnimplementedError();
 
   @override
   String join([String separator = ""]) {
@@ -116,10 +116,10 @@ class VibeSet<T> implements Set<T> {
 
   @override
   // TODO: implement last
-  T get last => throw UnimplementedError();
+  E get last => throw UnimplementedError();
 
   @override
-  T lastWhere(bool Function(T element) test, {T Function()? orElse}) {
+  E lastWhere(bool Function(E element) test, {E Function()? orElse}) {
     // TODO: implement lastWhere
     throw UnimplementedError();
   }
@@ -129,19 +129,19 @@ class VibeSet<T> implements Set<T> {
   int get length => throw UnimplementedError();
 
   @override
-  T? lookup(Object? object) {
+  E? lookup(Object? object) {
     // TODO: implement lookup
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> map<T>(T Function(T e) toElement) {
+  Iterable<T> map<T>(T Function(E e) toElement) {
     // TODO: implement map
     throw UnimplementedError();
   }
 
   @override
-  T reduce(T Function(T value, T element) combine) {
+  E reduce(E Function(E value, E element) combine) {
     // TODO: implement reduce
     throw UnimplementedError();
   }
@@ -158,7 +158,7 @@ class VibeSet<T> implements Set<T> {
   }
 
   @override
-  void removeWhere(bool Function(T element) test) {
+  void removeWhere(bool Function(E element) test) {
     // TODO: implement removeWhere
   }
 
@@ -168,64 +168,64 @@ class VibeSet<T> implements Set<T> {
   }
 
   @override
-  void retainWhere(bool Function(T element) test) {
+  void retainWhere(bool Function(E element) test) {
     // TODO: implement retainWhere
   }
 
   @override
   // TODO: implement single
-  T get single => throw UnimplementedError();
+  E get single => throw UnimplementedError();
 
   @override
-  T singleWhere(bool Function(T element) test, {T Function()? orElse}) {
+  E singleWhere(bool Function(E element) test, {E Function()? orElse}) {
     // TODO: implement singleWhere
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> skip(int count) {
+  Iterable<E> skip(int count) {
     // TODO: implement skip
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> skipWhile(bool Function(T value) test) {
+  Iterable<E> skipWhile(bool Function(E value) test) {
     // TODO: implement skipWhile
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> take(int count) {
+  Iterable<E> take(int count) {
     // TODO: implement take
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> takeWhile(bool Function(T value) test) {
+  Iterable<E> takeWhile(bool Function(E value) test) {
     // TODO: implement takeWhile
     throw UnimplementedError();
   }
 
   @override
-  List<T> toList({bool growable = true}) {
+  List<E> toList({bool growable = true}) {
     // TODO: implement toList
     throw UnimplementedError();
   }
 
   @override
-  Set<T> toSet() {
+  Set<E> toSet() {
     // TODO: implement toSet
     throw UnimplementedError();
   }
 
   @override
-  Set<T> union(Set<T> other) {
+  Set<E> union(Set<E> other) {
     // TODO: implement union
     throw UnimplementedError();
   }
 
   @override
-  Iterable<T> where(bool Function(T element) test) {
+  Iterable<E> where(bool Function(E element) test) {
     // TODO: implement where
     throw UnimplementedError();
   }
