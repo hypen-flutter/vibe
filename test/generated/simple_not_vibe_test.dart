@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:vibe/annotations/annotations.dart';
@@ -67,7 +66,7 @@ class Counter {
   void increaseNothing() => ++nothing;
 }
 
-class $Counter with EquatableMixin implements Counter {
+class $Counter implements Counter {
   late final subject = BehaviorSubject<List>()..add([this, count]);
   final equality = const DeepCollectionEquality();
   late final stream =
@@ -114,7 +113,4 @@ class $Counter with EquatableMixin implements Counter {
   void notify() {
     subject.add([this, count]);
   }
-
-  @override
-  List<Object?> get props => [count];
 }
