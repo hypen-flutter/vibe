@@ -1,6 +1,6 @@
 import 'dart:math';
 
-typedef Callback = void Function();
+import 'callback.dart';
 
 class VibeList<E> implements List<E> {
   VibeList(this.src, this.notify);

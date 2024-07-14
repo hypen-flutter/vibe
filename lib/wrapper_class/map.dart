@@ -1,108 +1,113 @@
+import 'callback.dart';
+
 class VibeMap<K, V> implements Map<K, V> {
+  const VibeMap(this.src, this.notify);
+  final Map<K, V> src;
+  final Callback notify;
+
   @override
-  V? operator [](Object? key) {
-    // TODO: implement []
-    throw UnimplementedError();
-  }
+  V? operator [](Object? key) => src[key];
 
   @override
   void operator []=(K key, V value) {
-    // TODO: implement []=
+    src[key] = value;
+    notify();
   }
 
   @override
   void addAll(Map<K, V> other) {
-    // TODO: implement addAll
+    src.addAll(other);
+    notify();
   }
 
   @override
   void addEntries(Iterable<MapEntry<K, V>> newEntries) {
-    // TODO: implement addEntries
+    src.addEntries(newEntries);
+    notify();
   }
 
   @override
-  Map<RK, RV> cast<RK, RV>() {
-    // TODO: implement cast
-    throw UnimplementedError();
-  }
+  Map<RK, RV> cast<RK, RV>() => src.cast();
 
   @override
   void clear() {
-    // TODO: implement clear
+    src.clear();
+    notify();
   }
 
   @override
-  bool containsKey(Object? key) {
-    // TODO: implement containsKey
-    throw UnimplementedError();
-  }
+  bool containsKey(Object? key) => src.containsKey(key);
 
   @override
-  bool containsValue(Object? value) {
-    // TODO: implement containsValue
-    throw UnimplementedError();
-  }
+  bool containsValue(Object? value) => src.containsValue(value);
 
   @override
-  // TODO: implement entries
-  Iterable<MapEntry<K, V>> get entries => throw UnimplementedError();
+  Iterable<MapEntry<K, V>> get entries => src.entries;
 
   @override
-  void forEach(void Function(K key, V value) action) {
-    // TODO: implement forEach
-  }
+  void forEach(void Function(K key, V value) action) => src.forEach(action);
 
   @override
-  // TODO: implement isEmpty
-  bool get isEmpty => throw UnimplementedError();
+  bool get isEmpty => src.isEmpty;
 
   @override
-  // TODO: implement isNotEmpty
-  bool get isNotEmpty => throw UnimplementedError();
+  bool get isNotEmpty => src.isNotEmpty;
 
   @override
-  // TODO: implement keys
-  Iterable<K> get keys => throw UnimplementedError();
+  Iterable<K> get keys => src.keys;
 
   @override
-  // TODO: implement length
-  int get length => throw UnimplementedError();
+  int get length => src.length;
 
   @override
-  Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> Function(K key, V value) convert) {
-    // TODO: implement map
-    throw UnimplementedError();
-  }
+  Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> Function(K key, V value) convert) =>
+      src.map(convert);
 
   @override
   V putIfAbsent(K key, V Function() ifAbsent) {
-    // TODO: implement putIfAbsent
-    throw UnimplementedError();
+    late V ret;
+    _notifyWhenChanged(() {
+      ret = src.putIfAbsent(key, ifAbsent);
+    });
+    return ret;
   }
 
   @override
   V? remove(Object? key) {
-    // TODO: implement remove
-    throw UnimplementedError();
+    final ret = src.remove(key);
+    notify();
+    return ret;
   }
 
   @override
   void removeWhere(bool Function(K key, V value) test) {
-    // TODO: implement removeWhere
+    _notifyWhenChanged(() {
+      src.removeWhere(test);
+    });
   }
 
   @override
   V update(K key, V Function(V value) update, {V Function()? ifAbsent}) {
-    // TODO: implement update
-    throw UnimplementedError();
+    final ret = src.update(key, update, ifAbsent: ifAbsent);
+    notify();
+    return ret;
   }
 
   @override
   void updateAll(V Function(K key, V value) update) {
-    // TODO: implement updateAll
+    src.updateAll(update);
+    notify();
   }
 
   @override
-  // TODO: implement values
-  Iterable<V> get values => throw UnimplementedError();
+  Iterable<V> get values => src.values;
+
+  void _notifyWhenChanged(void Function() callback) {
+    int len = length;
+    callback();
+    int afterLen = length;
+    if (len != afterLen) {
+      notify();
+    }
+  }
 }

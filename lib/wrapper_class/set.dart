@@ -1,238 +1,184 @@
+import 'callback.dart';
+
 class VibeSet<E> implements Set<E> {
+  VibeSet(this.src, this.notify);
+  final Set<E> src;
+  final Callback notify;
+
   @override
   bool add(E value) {
-    // TODO: implement add
-    throw UnimplementedError();
+    final ret = src.add(value);
+    if (ret) {
+      notify();
+    }
+    return ret;
   }
 
   @override
   void addAll(Iterable<E> elements) {
-    // TODO: implement addAll
+    src.addAll(elements);
+    notify();
   }
 
   @override
-  bool any(bool Function(E element) test) {
-    // TODO: implement any
-    throw UnimplementedError();
-  }
+  bool any(bool Function(E element) test) => src.any(test);
 
   @override
-  Set<R> cast<R>() {
-    // TODO: implement cast
-    throw UnimplementedError();
-  }
+  Set<R> cast<R>() => src.cast();
 
   @override
   void clear() {
-    // TODO: implement clear
+    src.clear();
+    notify();
   }
 
   @override
-  bool contains(Object? value) {
-    // TODO: implement contains
-    throw UnimplementedError();
-  }
+  bool contains(Object? value) => src.contains(value);
 
   @override
-  bool containsAll(Iterable<Object?> other) {
-    // TODO: implement containsAll
-    throw UnimplementedError();
-  }
+  bool containsAll(Iterable<Object?> other) => src.containsAll(other);
 
   @override
-  Set<E> difference(Set<Object?> other) {
-    // TODO: implement difference
-    throw UnimplementedError();
-  }
+  Set<E> difference(Set<Object?> other) => src.difference(other);
 
   @override
-  E elementAt(int index) {
-    // TODO: implement elementAt
-    throw UnimplementedError();
-  }
+  E elementAt(int index) => src.elementAt(index);
 
   @override
-  bool every(bool Function(E element) test) {
-    // TODO: implement every
-    throw UnimplementedError();
-  }
+  bool every(bool Function(E element) test) => src.every(test);
 
   @override
-  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) {
-    // TODO: implement expand
-    throw UnimplementedError();
-  }
+  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) =>
+      src.expand(toElements);
 
   @override
-  // TODO: implement first
-  E get first => throw UnimplementedError();
+  E get first => src.first;
 
   @override
-  E firstWhere(bool Function(E element) test, {E Function()? orElse}) {
-    // TODO: implement firstWhere
-    throw UnimplementedError();
-  }
+  E firstWhere(bool Function(E element) test, {E Function()? orElse}) =>
+      src.firstWhere(test, orElse: orElse);
 
   @override
-  T fold<T>(T initialValue, T Function(T previousValue, E element) combine) {
-    // TODO: implement fold
-    throw UnimplementedError();
-  }
+  T fold<T>(T initialValue, T Function(T previousValue, E element) combine) =>
+      src.fold(initialValue, combine);
 
   @override
-  Iterable<E> followedBy(Iterable<E> other) {
-    // TODO: implement followedBy
-    throw UnimplementedError();
-  }
+  Iterable<E> followedBy(Iterable<E> other) => src.followedBy(other);
 
   @override
-  void forEach(void Function(E element) action) {
-    // TODO: implement forEach
-  }
+  void forEach(void Function(E element) action) => src.forEach(action);
 
   @override
-  Set<E> intersection(Set<Object?> other) {
-    // TODO: implement intersection
-    throw UnimplementedError();
-  }
+  Set<E> intersection(Set<Object?> other) => src.intersection(other);
 
   @override
-  // TODO: implement isEmpty
-  bool get isEmpty => throw UnimplementedError();
+  bool get isEmpty => src.isEmpty;
 
   @override
-  // TODO: implement isNotEmpty
-  bool get isNotEmpty => throw UnimplementedError();
+  bool get isNotEmpty => src.isNotEmpty;
 
   @override
-  // TODO: implement iterator
-  Iterator<E> get iterator => throw UnimplementedError();
+  Iterator<E> get iterator => src.iterator;
 
   @override
-  String join([String separator = ""]) {
-    // TODO: implement join
-    throw UnimplementedError();
-  }
+  String join([String separator = ""]) => src.join(separator);
 
   @override
-  // TODO: implement last
-  E get last => throw UnimplementedError();
+  E get last => src.last;
 
   @override
-  E lastWhere(bool Function(E element) test, {E Function()? orElse}) {
-    // TODO: implement lastWhere
-    throw UnimplementedError();
-  }
+  E lastWhere(bool Function(E element) test, {E Function()? orElse}) =>
+      src.lastWhere(test, orElse: orElse);
 
   @override
-  // TODO: implement length
-  int get length => throw UnimplementedError();
+  int get length => src.length;
 
   @override
-  E? lookup(Object? object) {
-    // TODO: implement lookup
-    throw UnimplementedError();
-  }
+  E? lookup(Object? object) => src.lookup(object);
 
   @override
-  Iterable<T> map<T>(T Function(E e) toElement) {
-    // TODO: implement map
-    throw UnimplementedError();
-  }
+  Iterable<T> map<T>(T Function(E e) toElement) => src.map(toElement);
 
   @override
-  E reduce(E Function(E value, E element) combine) {
-    // TODO: implement reduce
-    throw UnimplementedError();
-  }
+  E reduce(E Function(E value, E element) combine) => src.reduce(combine);
 
   @override
   bool remove(Object? value) {
-    // TODO: implement remove
-    throw UnimplementedError();
+    final ret = src.remove(value);
+    if (ret) {
+      notify();
+    }
+    return ret;
   }
 
   @override
   void removeAll(Iterable<Object?> elements) {
-    // TODO: implement removeAll
+    _notifyWhenChanged(() {
+      src.removeAll(elements);
+    });
   }
 
   @override
   void removeWhere(bool Function(E element) test) {
-    // TODO: implement removeWhere
+    _notifyWhenChanged(() {
+      src.removeWhere(test);
+    });
   }
 
   @override
   void retainAll(Iterable<Object?> elements) {
-    // TODO: implement retainAll
+    _notifyWhenChanged(() {
+      src.retainAll(elements);
+    });
   }
 
   @override
   void retainWhere(bool Function(E element) test) {
-    // TODO: implement retainWhere
+    _notifyWhenChanged(() {
+      src.retainWhere(test);
+    });
   }
 
   @override
-  // TODO: implement single
-  E get single => throw UnimplementedError();
+  E get single => src.single;
 
   @override
-  E singleWhere(bool Function(E element) test, {E Function()? orElse}) {
-    // TODO: implement singleWhere
-    throw UnimplementedError();
-  }
+  E singleWhere(bool Function(E element) test, {E Function()? orElse}) =>
+      src.singleWhere(test, orElse: orElse);
 
   @override
-  Iterable<E> skip(int count) {
-    // TODO: implement skip
-    throw UnimplementedError();
-  }
+  Iterable<E> skip(int count) => src.skip(count);
 
   @override
-  Iterable<E> skipWhile(bool Function(E value) test) {
-    // TODO: implement skipWhile
-    throw UnimplementedError();
-  }
+  Iterable<E> skipWhile(bool Function(E value) test) => src.skipWhile(test);
 
   @override
-  Iterable<E> take(int count) {
-    // TODO: implement take
-    throw UnimplementedError();
-  }
+  Iterable<E> take(int count) => src.take(count);
 
   @override
-  Iterable<E> takeWhile(bool Function(E value) test) {
-    // TODO: implement takeWhile
-    throw UnimplementedError();
-  }
+  Iterable<E> takeWhile(bool Function(E value) test) => src.takeWhile(test);
 
   @override
-  List<E> toList({bool growable = true}) {
-    // TODO: implement toList
-    throw UnimplementedError();
-  }
+  List<E> toList({bool growable = true}) => src.toList();
 
   @override
-  Set<E> toSet() {
-    // TODO: implement toSet
-    throw UnimplementedError();
-  }
+  Set<E> toSet() => src.toSet();
 
   @override
-  Set<E> union(Set<E> other) {
-    // TODO: implement union
-    throw UnimplementedError();
-  }
+  Set<E> union(Set<E> other) => src.union(other);
 
   @override
-  Iterable<E> where(bool Function(E element) test) {
-    // TODO: implement where
-    throw UnimplementedError();
-  }
+  Iterable<E> where(bool Function(E element) test) => src.where(test);
 
   @override
-  Iterable<T> whereType<T>() {
-    // TODO: implement whereType
-    throw UnimplementedError();
+  Iterable<T> whereType<T>() => src.whereType();
+
+  void _notifyWhenChanged(void Function() callback) {
+    int len = length;
+    callback();
+    int afterLen = length;
+    if (len != afterLen) {
+      notify();
+    }
   }
 }
