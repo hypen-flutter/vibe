@@ -67,7 +67,10 @@ class Counter {
 }
 
 class $Counter implements Counter {
-  late final subject = BehaviorSubject<List>()..add([this, count]);
+  $Counter() {
+    notify();
+  }
+  final subject = BehaviorSubject<List>();
   final equality = const DeepCollectionEquality();
   late final stream =
       subject.distinct(equality.equals).map((event) => event[0]);
