@@ -2,20 +2,20 @@ part of 'states.dart';
 
 /// A simple container maintains the streams
 class VibeContainer {
-  final Map<dynamic, Stream> _container = {};
+  final Map<dynamic, dynamic> _container = {};
 
   /// Adds new stream
-  Stream<T> add<T>(dynamic key, Stream<T> stream) {
-    return _container[key] = stream;
+  T add<T>(dynamic key, T val) {
+    return _container[key] = val;
   }
 
   /// Returns the stream or null
-  Stream<T>? find<T>(dynamic key) {
-    return _container[key] as Stream<T>?;
+  T? find<T>(dynamic key) {
+    return _container[key] as T?;
   }
 
   /// Removes the stream
-  Stream<T>? remove<T>(dynamic key) {
-    return _container.remove(key) as Stream<T>?;
+  T? remove<T>(dynamic key) {
+    return _container.remove(key) as T?;
   }
 }

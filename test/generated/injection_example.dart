@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
+import 'package:rxdart/streams.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:vibe/annotations/annotations.dart';
 import 'package:vibe/states/states.dart';
 
-import '../states/container_test.dart';
 import '../states/equals.dart';
 import 'counter_example.dart';
 
@@ -17,23 +17,61 @@ class Derived with _Derived {
 
   @StreamVibe([Counter])
   late int streamedCount;
+
+  @override
+  int $selectCount(Counter counter) {
+    return counter.count;
+  }
+
+  @override
+  Stream<int> $streamStreamedCount(Stream<Counter> counter) {
+    return counter.map((c) => c.count).distinct().where((c) => c % 2 == 0);
+  }
 }
 
 mixin _Derived {
-  int selec
+  int $selectCount(Counter counter);
+  Stream<int> $streamStreamedCount(Stream<Counter> counter);
 }
 
 class $Derived with EquatableMixin implements Derived {
-  static Stream<Derived> find(VibeContainer container) {
-    final counterStream = $Counter.find(container);
+  static $Derived find(VibeContainer container) {
+    return container.find<$Derived>(Derived) ??
+        container.add<$Derived>(Derived, () {
+          final counter = $Counter.find(container);
+          final state = $Derived();
+          ZipStream([counter.stream], (cs) => cs).first.then(
+            (value) async {
+              state.src.counter = counter;
+              counter.stream
+                  .skip(1)
+                  .listen((counter) => state.counter = counter);
 
+              state.src.count = state.$selectCount(counter);
+              counter.stream
+                  .skip(1)
+                  .map(state.$selectCount)
+                  .distinct()
+                  .listen((e) {
+                state.count = e;
+              });
+
+              final streamedCountStream =
+                  state.$streamStreamedCount(counter.stream);
+              state.src.streamedCount = await streamedCountStream.first;
+              streamedCountStream.skip(1).listen((event) {
+                state.streamedCount = event;
+              });
+
+              state.notify();
+            },
+          );
+          return state;
+        }());
   }
 
-  $Derived();
-
   final subject = BehaviorSubject<List>();
-  late final stream =
-      subject.distinct(deepEquals).map((event) => this);
+  late final stream = subject.distinct(deepEquals).map((event) => this);
 
   final src = Derived();
 
@@ -54,18 +92,27 @@ class $Derived with EquatableMixin implements Derived {
   }
 
   @override
-  late Counter counter;
+  Counter get counter => src.counter;
 
   @override
-  int selec;
+  int get streamedCount => src.streamedCount;
 
   @override
-  int streamedCount;
-  
-  @override
-  set count(int count) {
-    // TODO: implement count
+  set streamedCount(val) {
+    src.streamedCount = val;
+    notify();
   }
-  
+
+  @override
+  int $selectCount(Counter counter) => src.$selectCount(counter);
+
+  @override
+  Stream<int> $streamStreamedCount(Stream<Counter> counter) =>
+      src.$streamStreamedCount(counter);
+
+  @override
+  set counter(Counter counter) {
+    src.counter = counter;
+    notify();
+  }
 }
- 

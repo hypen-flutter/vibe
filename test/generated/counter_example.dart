@@ -17,18 +17,15 @@ class Counter {
 }
 
 class $Counter with EquatableMixin implements Counter {
-  static Stream<Counter> find(VibeContainer container) {
-    return container.find(Counter) ??
-        container.add(Counter, () {
-          return $Counter(container).stream;
-        }());
+  static $Counter find(VibeContainer container) {
+    return (container.find<$Counter>(Counter) ??
+        container.add<$Counter>(Counter, () {
+          final ret = $Counter();
+          ret.notify();
+          return ret;
+        }()));
   }
 
-  $Counter(this.container) {
-    notify();
-  }
-
-  final VibeContainer container;
   final subject = BehaviorSubject<List>();
   late final stream = subject.distinct(deepEquals).map((event) => this);
 

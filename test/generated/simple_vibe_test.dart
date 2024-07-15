@@ -1,17 +1,20 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rxdart/subjects.dart';
-import 'package:vibe/annotations/annotations.dart';
+import 'package:vibe/states/states.dart';
+
+import 'counter_example.dart';
 
 int main() {
   group('Simple Vibe', () {
     late $Counter counter;
+    late VibeContainer container;
     setUp(() {
-      counter = $Counter();
+      container = VibeContainer();
+      counter = $Counter.find(container);
     });
     test('can generate a stream initialization code ', () {
+      expect(counter, isA<Counter>());
       expect(counter.stream, isA<Stream>());
     });
 
@@ -53,67 +56,4 @@ int main() {
     });
   });
   return 0;
-}
-
-@Vibe()
-class Counter {
-  int count = 0;
-
-  @NotVibe()
-  int nothing = 0;
-  void increase() => ++count;
-  void decrease() => --count;
-  void increaseNothing() => ++nothing;
-}
-
-class $Counter implements Counter {
-  $Counter() {
-    notify();
-  }
-  final subject = BehaviorSubject<List>();
-  final equality = const DeepCollectionEquality();
-  late final stream =
-      subject.distinct(equality.equals).map((event) => event[0]);
-
-  Counter src = Counter();
-
-  @override
-  int get count => src.count;
-
-  @override
-  set count(val) {
-    src.count = val;
-    notify();
-  }
-
-  @override
-  int get nothing => src.nothing;
-
-  @override
-  set nothing(val) {
-    src.nothing = val;
-    notify();
-  }
-
-  @override
-  void decrease() {
-    src.decrease();
-    notify();
-  }
-
-  @override
-  void increase() {
-    src.increase();
-    notify();
-  }
-
-  @override
-  void increaseNothing() {
-    src.increaseNothing();
-    notify();
-  }
-
-  void notify() {
-    subject.add([this, count]);
-  }
 }
