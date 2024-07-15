@@ -1,4 +1,3 @@
-import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vibe/states/states.dart';
 
@@ -24,47 +23,30 @@ int main() {
       expect(derived.streamedCount, equals(0));
     });
     test('react on linked vibe changes', () async {
-      fakeAsync(
-        (async) {
-          counter.increase();
-          async.flushTimers();
-          async.flushMicrotasks();
-          expect(derived.count, equals(1));
-          expect(derived.streamedCount, equals(0));
-          counter.increase();
-          async.flushTimers();
-          async.flushMicrotasks();
-          expect(derived.count, equals(2));
-          expect(derived.streamedCount, equals(2));
-        },
-      );
+      counter.increase();
+      await Future.delayed(Duration.zero);
+      expect(derived.count, equals(1));
+      expect(derived.streamedCount, equals(0));
+      counter.increase();
+      await Future.delayed(Duration.zero);
+      expect(derived.count, equals(2));
+      expect(derived.streamedCount, equals(2));
     });
 
-    test('reacts on change fields', () {
-      fakeAsync(
-        (async) {
-          derived.count++;
-          async.flushTimers();
-          async.flushMicrotasks();
-          expect(derived.count, equals(1));
-        },
-      );
+    test('reacts on change fields', () async {
+      derived.count++;
+      await Future.delayed(Duration.zero);
+      expect(derived.count, equals(1));
     });
-    test('reacts again on linked vibe after change fields', () {
-      fakeAsync(
-        (async) {
-          derived.count++;
-          derived.count++;
-          derived.count++;
-          async.flushTimers();
-          async.flushMicrotasks();
-          expect(derived.count, equals(3));
-          counter.increase();
-          async.flushTimers();
-          async.flushMicrotasks();
-          expect(derived.count, equals(1));
-        },
-      );
+    test('reacts again on linked vibe after change fields', () async {
+      derived.count++;
+      derived.count++;
+      derived.count++;
+      await Future.delayed(Duration.zero);
+      expect(derived.count, equals(3));
+      counter.increase();
+      await Future.delayed(Duration.zero);
+      expect(derived.count, equals(1));
     });
   });
 

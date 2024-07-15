@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:rxdart/streams.dart';
 import 'package:vibe/annotations/annotations.dart';
@@ -17,7 +19,7 @@ class Derived with _Derived {
   late int streamedCount;
 
   @override
-  int $selectCount(Counter counter) {
+  VibeFutureOr<int> $selectCount(Counter counter) async {
     return counter.count;
   }
 
@@ -28,7 +30,7 @@ class Derived with _Derived {
 }
 
 mixin _Derived {
-  int $selectCount(Counter counter);
+  FutureOr<int> $selectCount(Counter counter);
   Stream<int> $streamStreamedCount(Stream<Counter> counter);
 }
 
@@ -45,10 +47,10 @@ class $Derived with EquatableMixin, Viber<$Derived> implements Derived {
                   .skip(1)
                   .listen((counter) => state.counter = counter);
 
-              state.src.count = state.$selectCount(counter);
+              state.src.count = await state.$selectCount(counter);
               counter.stream
                   .skip(1)
-                  .map(state.$selectCount)
+                  .asyncMap(state.$selectCount)
                   .distinct()
                   .listen((e) {
                 state.count = e;
@@ -95,7 +97,7 @@ class $Derived with EquatableMixin, Viber<$Derived> implements Derived {
   }
 
   @override
-  int $selectCount(Counter counter) => src.$selectCount(counter);
+  VibeFutureOr<int> $selectCount(Counter counter) => src.$selectCount(counter);
 
   @override
   Stream<int> $streamStreamedCount(Stream<Counter> counter) =>
