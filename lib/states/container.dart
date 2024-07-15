@@ -5,8 +5,8 @@ class VibeContainer {
   final Map<dynamic, Stream> _container = {};
 
   /// Adds new stream
-  void add(dynamic key, Stream stream) {
-    _container[key] = stream;
+  Stream<T> add<T>(dynamic key, Stream<T> stream) {
+    return _container[key] = stream;
   }
 
   /// Returns the stream or null

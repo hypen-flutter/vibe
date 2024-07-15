@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vibe/states/states.dart';
 
+import '../generated/counter_example.dart';
+
 int main() {
   group('VibeContainer', () {
     late VibeContainer container;
@@ -29,5 +31,3 @@ int main() {
   });
   return 0;
 }
-
-class Counter {}
