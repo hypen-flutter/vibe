@@ -3,7 +3,10 @@
 # TODO
 
 - [x] Generated code samples
+- [ ] Enum state
+- [ ] Side effect samples
+- [ ] API-connected state
 - [ ] Code Generation
-- [ ] Side effect
+- [ ] Custom type definition
 - [ ] Declarative Navigation
 - [ ] File-based declarative navigation

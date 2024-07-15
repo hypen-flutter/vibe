@@ -8,8 +8,11 @@ class Counter {
 
   @NotVibe()
   int nothing = 0;
+
   void increase() => ++count;
   void decrease() => --count;
+
+  @NoEffect()
   void increaseNothing() => ++nothing;
 }
 
@@ -42,7 +45,6 @@ class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   @override
   set nothing(val) {
     src.nothing = val;
-    notify();
   }
 
   @override

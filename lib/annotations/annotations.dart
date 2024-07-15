@@ -1,6 +1,18 @@
 import 'package:meta/meta_meta.dart';
 
-/// Mark a class as it is a reactive state class
+/// [Vibe] without an argument
+const vibe = Vibe();
+
+/// [NotVibe]
+const notVibe = NotVibe();
+
+/// [Link] without an argument
+const link = LinkVibe();
+
+/// [NoEffect]
+const noEffect = NoEffect();
+
+/// Marks a class as it is a reactive state class
 @Target({
   TargetKind.classType,
   TargetKind.enumType,
@@ -12,13 +24,13 @@ class Vibe {
   final Symbol? name;
 }
 
-/// Mark a field as not a reactive field.
+/// Marks a field as not a reactive field.
 @Target({TargetKind.field})
 class NotVibe {
   const NotVibe();
 }
 
-/// Mark a field to connect it to the other [Vibe] state.
+/// Marks a field to connect it to the other [Vibe] state.
 @Target({TargetKind.field})
 class LinkVibe {
   const LinkVibe([this.name]);
@@ -27,7 +39,7 @@ class LinkVibe {
   final Symbol? name;
 }
 
-/// Mark a field to selectively watch the other [Vibe] state.
+/// Marks a field to selectively watch the other [Vibe] state.
 @Target({TargetKind.field})
 class SelectVibe {
   const SelectVibe(this.targets);
@@ -36,7 +48,7 @@ class SelectVibe {
   final List<dynamic> targets;
 }
 
-/// Mark a field to continuely watch the other [Vibe] state.
+/// Marks a field to continuely watch the other [Vibe] state.
 @Target({TargetKind.field})
 class StreamVibe {
   const StreamVibe(this.targets);
@@ -45,11 +57,17 @@ class StreamVibe {
   final List<dynamic> targets;
 }
 
-/// Mark a side effect of other [Vibe]s
+/// Marks a side effect of other [Vibe]s
 @Target({TargetKind.classType})
 class VibeEffect {
   const VibeEffect(this.targets);
 
   /// List of target [Vibe]s
   final List<dynamic> targets;
+}
+
+/// Makes code generator not generate side effect code.
+@Target({TargetKind.field, TargetKind.method})
+class NoEffect {
+  const NoEffect();
 }
