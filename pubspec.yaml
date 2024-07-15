@@ -1,10 +1,10 @@
 name: vibe
 description: A new declarative UI framework
 version: 0.0.1
-homepage:
+homepage: https://github.com/hypen-flutter/vibe.git
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
+  sdk: ">=3.4.3 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
