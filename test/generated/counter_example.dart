@@ -1,9 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:rxdart/subjects.dart';
 import 'package:vibe/annotations/annotations.dart';
 import 'package:vibe/states/states.dart';
-
-import '../states/equals.dart';
 
 @Vibe()
 class Counter {
@@ -16,7 +13,7 @@ class Counter {
   void increaseNothing() => ++nothing;
 }
 
-class $Counter with EquatableMixin implements Counter {
+class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   static $Counter find(VibeContainer container) {
     return (container.find<$Counter>(Counter) ??
         container.add<$Counter>(Counter, () {
@@ -26,17 +23,9 @@ class $Counter with EquatableMixin implements Counter {
         }()));
   }
 
-  final subject = BehaviorSubject<List>();
-  late final stream = subject.distinct(deepEquals).map((event) => this);
-
   Counter src = Counter();
-
   @override
   List<Object?> get props => [count];
-
-  void notify() {
-    subject.add(props);
-  }
 
   @override
   int get count => src.count;

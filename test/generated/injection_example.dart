@@ -1,10 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:rxdart/streams.dart';
-import 'package:rxdart/subjects.dart';
 import 'package:vibe/annotations/annotations.dart';
 import 'package:vibe/states/states.dart';
 
-import '../states/equals.dart';
 import 'counter_example.dart';
 
 @Vibe()
@@ -34,7 +32,7 @@ mixin _Derived {
   Stream<int> $streamStreamedCount(Stream<Counter> counter);
 }
 
-class $Derived with EquatableMixin implements Derived {
+class $Derived with EquatableMixin, Viber<$Derived> implements Derived {
   static $Derived find(VibeContainer container) {
     return container.find<$Derived>(Derived) ??
         container.add<$Derived>(Derived, () {
@@ -70,14 +68,7 @@ class $Derived with EquatableMixin implements Derived {
         }());
   }
 
-  final subject = BehaviorSubject<List>();
-  late final stream = subject.distinct(deepEquals).map((event) => this);
-
   final src = Derived();
-
-  void notify() {
-    subject.add(props);
-  }
 
   @override
   List<Object?> get props => [counter, count, streamedCount];
