@@ -17,14 +17,21 @@ class Counter {
 }
 
 class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
+  $Counter(this.container);
+
   static $Counter find(VibeContainer container) {
     return (container.find<$Counter>(Counter) ??
         container.add<$Counter>(Counter, () {
-          final ret = $Counter();
+          final ret = $Counter(container);
           ret.notify();
           return ret;
         }()));
   }
+
+  @override
+  final VibeContainer container;
+  @override
+  bool get autoDispose => true;
 
   Counter src = Counter();
 

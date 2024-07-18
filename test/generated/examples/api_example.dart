@@ -27,14 +27,20 @@ class Usecase {
 }
 
 class $User with EquatableMixin, Viber<$User> implements User {
+  $User(this.container);
   static $User find(VibeContainer container, int userId) {
     return (container.find<$User>(User) ??
         container.add<$User>(User, () {
-          final ret = $User();
+          final ret = $User(container);
           ret.notify();
           return ret;
         }()));
   }
+
+  @override
+  final VibeContainer container;
+  @override
+  bool get autoDispose => true;
 
   late User src;
   @override

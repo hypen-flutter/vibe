@@ -11,8 +11,13 @@ int main() {
     late VibeContainer container;
     setUp(() {
       container = VibeContainer();
-      counter = $Counter.find(container);
+      counter = $Counter.find(container)..ref();
     });
+
+    tearDown(() {
+      counter.unref();
+    });
+
     test('can generate a stream initialization code ', () {
       expect(counter, isA<Counter>());
       expect(counter.stream, isA<Stream>());

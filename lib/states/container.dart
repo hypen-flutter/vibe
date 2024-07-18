@@ -18,4 +18,8 @@ class VibeContainer {
   T? remove<T>(dynamic key) {
     return _container.remove(key) as T?;
   }
+
+  void dispose() {
+    _container.clear();
+  }
 }

@@ -35,11 +35,14 @@ mixin _Derived {
 }
 
 class $Derived with EquatableMixin, Viber<$Derived> implements Derived {
+  $Derived(this.container);
+
   static $Derived find(VibeContainer container) {
     return container.find<$Derived>(Derived) ??
         container.add<$Derived>(Derived, () {
           final counter = $Counter.find(container);
-          final state = $Derived();
+          final state = $Derived(container);
+          state.addDependency(counter);
           ZipStream([counter.stream], (cs) => cs).first.then(
             (value) async {
               state.src.counter = counter;
@@ -69,6 +72,12 @@ class $Derived with EquatableMixin, Viber<$Derived> implements Derived {
           return state;
         }());
   }
+
+  @override
+  final VibeContainer container;
+
+  @override
+  bool get autoDispose => true;
 
   final src = Derived();
 

@@ -9,10 +9,12 @@ import '../states/states.dart';
 abstract class VibeStatelessWidget extends VibeStatefulWidget {
   const VibeStatelessWidget({super.key});
 
+  /// Build loading [Widget] while async [Vibe] is loading
   Widget loader(BuildContext context) {
     return const CircularProgressIndicator.adaptive();
   }
 
+  /// Same as the [StatelessWidget.build]
   Widget build(BuildContext context);
 
   @nonVirtual
@@ -57,7 +59,9 @@ abstract class VibeStatefulWidget extends StatefulWidget {
 
 /// [State] for [VibeStatefulWidget]
 abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
-  final List<StreamSubscription> _vibes = [];
+  final List<StreamSubscription> _subscriptions = [];
+  final List<Viber> _vibers = [];
+  final List<void Function()> _onDisposes = [];
 
   /// Build loader for async states
   Widget loader(BuildContext context) {
@@ -69,23 +73,34 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
 
   @override
   void dispose() {
-    for (final v in _vibes) {
-      v.cancel();
+    for (final s in _subscriptions) {
+      s.cancel();
     }
-    _vibes.clear();
+    _subscriptions.clear();
+    for (final v in _vibers) {
+      v.unref();
+    }
+    _vibers.clear();
+
+    for (final f in _onDisposes) {
+      f();
+    }
+    _onDisposes.clear();
     super.dispose();
   }
 
   /// Add the vibe [StreamSubscription]
+  ///
+  /// Users will never call this.
   @nonVirtual
-  void addVibe(StreamSubscription sub) {
-    _vibes.add(sub);
-  }
-
-  /// [setState] delegate
-  @nonVirtual
-  void markNeedsBuild() {
-    setState(() {});
+  void addVibe(Viber v, void Function() onDispose) {
+    _vibers.add(v..ref());
+    _onDisposes.add(onDispose);
+    _subscriptions.add(v.stream.listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    }));
   }
 }
 
@@ -115,7 +130,7 @@ class VibeStatefulElement extends StatefulElement {
       context != null,
       'You can not call [getContainer] with non-[VibeStatelessWidget]',
     );
-    return _InheritedVibeContainer.of(context!);
+    return InheritedVibeContainer.of(context!);
   }
 }
 
@@ -134,31 +149,34 @@ class _VibeScopeState extends VibeWidgetState<VibeScope> {
   final container = VibeContainer();
   @override
   Widget build(BuildContext context) {
-    return _InheritedVibeContainer(
+    return InheritedVibeContainer(
       container: container,
       child: widget.child,
     );
   }
 }
 
-class _InheritedVibeContainer extends InheritedWidget {
-  const _InheritedVibeContainer({
+@visibleForTesting
+class InheritedVibeContainer extends InheritedWidget {
+  const InheritedVibeContainer({
     required this.container,
     required super.child,
+    super.key,
   });
 
   final VibeContainer container;
-  static final VibeContainer _container = VibeContainer();
+  @visibleForTesting
+  static final VibeContainer globalContainer = VibeContainer();
 
   static VibeContainer of(BuildContext context) {
     return context
-            .dependOnInheritedWidgetOfExactType<_InheritedVibeContainer>()
+            .dependOnInheritedWidgetOfExactType<InheritedVibeContainer>()
             ?.container ??
-        _InheritedVibeContainer._container;
+        InheritedVibeContainer.globalContainer;
   }
 
   @override
-  bool updateShouldNotify(covariant _InheritedVibeContainer oldWidget) {
+  bool updateShouldNotify(covariant InheritedVibeContainer oldWidget) {
     return container != oldWidget.container;
   }
 }

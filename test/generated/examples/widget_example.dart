@@ -31,15 +31,16 @@ extension VibeWidgetExample on WidgetExample {
   VibeContainer get _container => VibeStatefulElement.getContainer(this);
   VibeWidgetState get _state => VibeStatefulElement.getState(this)!;
 
-  static $Counter? _counter;
+  static final Map<dynamic, $Counter> _counter = {};
 
   Counter getCounter() {
-    if (_counter != null) {
-      return _counter!;
+    if (_counter[this] != null) {
+      return _counter[this]!;
     }
-    _counter = $Counter.find(_container);
-    final stream = _counter!.stream;
-    _state.addVibe(stream.listen((_) => _state.markNeedsBuild()));
+    _counter[this] = $Counter.find(_container);
+    _state.addVibe(_counter[this]!, () {
+      _counter.remove(this);
+    });
     return counter;
   }
 }
