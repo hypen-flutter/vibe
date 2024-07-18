@@ -5,7 +5,7 @@ import 'package:vibe/widgets/widgets.dart';
 
 import 'counter_example.dart';
 
-class WidgetExample extends VibeStatelessWidget {
+class WidgetExample extends VibeStatelessWidget with _WidgetExample {
   const WidgetExample({super.key});
 
   @LinkVibe()
@@ -27,8 +27,8 @@ class WidgetExample extends VibeStatelessWidget {
   }
 }
 
-extension VibeWidgetExample on WidgetExample {
-  VibeContainer get _container => VibeStatefulElement.getContainer(this);
+mixin _WidgetExample on VibeStatelessWidget {
+  VibeContainer get _container => VibeStatefulElement.getContainer(this)!;
   VibeWidgetState get _state => VibeStatefulElement.getState(this)!;
 
   static final Map<dynamic, $Counter> _counter = {};
@@ -41,6 +41,9 @@ extension VibeWidgetExample on WidgetExample {
     _state.addVibe(_counter[this]!, () {
       _counter.remove(this);
     });
-    return counter;
+    return _counter[this]!;
   }
+
+  @override
+  List<Viber Function()> get initializers => [() => getCounter() as Viber];
 }

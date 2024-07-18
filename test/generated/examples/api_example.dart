@@ -22,17 +22,29 @@ mixin _User {
   VibeFutureOr<void> $load(int userId, RemoteAPI api);
 }
 
+@Vibe()
 class Usecase {
+  Usecase();
+  @LinkVibe()
   late final User user;
 }
 
 class $User with EquatableMixin, Viber<$User> implements User {
   $User(this.container);
-  static $User find(VibeContainer container, int userId) {
+  static $User find(VibeContainer container, User user) {
     return (container.find<$User>(User) ??
         container.add<$User>(User, () {
           final ret = $User(container);
-          ret.notify();
+          final src = ret.src = user;
+          final api = RemoteAPI(); // 원래는 $RemoteAPI.find(container);
+          final result = src.$load(user.userId, api);
+          if (result is Future) {
+            result.then((_) {
+              ret.notify();
+            });
+          } else {
+            ret.notify();
+          }
           return ret;
         }()));
   }

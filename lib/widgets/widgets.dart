@@ -17,6 +17,8 @@ abstract class VibeStatelessWidget extends VibeStatefulWidget {
   /// Same as the [StatelessWidget.build]
   Widget build(BuildContext context);
 
+  List<Viber Function()> get initializers => [];
+
   @nonVirtual
   @override
   VibeWidgetState<VibeStatefulWidget> createState() =>
@@ -25,21 +27,16 @@ abstract class VibeStatelessWidget extends VibeStatefulWidget {
 
 class _VibeStatelessWidgetState extends VibeWidgetState<VibeStatelessWidget> {
   @override
+  List<Viber Function()> get initializers => widget.initializers;
+
+  @override
   Widget loader(BuildContext context) {
-    VibeStatefulElement.setState(widget, this);
     return widget.loader(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    VibeStatefulElement.setState(widget, this);
     return widget.build(context);
-  }
-
-  @override
-  void dispose() {
-    VibeStatefulElement.removeState(widget);
-    super.dispose();
   }
 }
 
@@ -62,6 +59,25 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   final List<StreamSubscription> _subscriptions = [];
   final List<Viber> _vibers = [];
   final List<void Function()> _onDisposes = [];
+  List<Viber Function()> get initializers => [];
+
+  @override
+  void initState() {
+    super.initState();
+    VibeStatefulElement.setState(widget, this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final container = InheritedVibeContainer.of(context);
+    if (container != VibeStatefulElement.getContainer(widget)) {
+      VibeStatefulElement.setContainer(widget, container);
+      for (final init in initializers) {
+        init();
+      }
+    }
+  }
 
   /// Build loader for async states
   Widget loader(BuildContext context) {
@@ -86,8 +102,15 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
       f();
     }
     _onDisposes.clear();
+
+    VibeStatefulElement.removeContainer(widget);
+    VibeStatefulElement.removeState(widget);
+
     super.dispose();
   }
+
+  int numReady = 0;
+  bool get ready => numReady == _vibers.length;
 
   /// Add the vibe [StreamSubscription]
   ///
@@ -96,7 +119,14 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   void addVibe(Viber v, void Function() onDispose) {
     _vibers.add(v..ref());
     _onDisposes.add(onDispose);
-    _subscriptions.add(v.stream.listen((_) {
+    // Wait for the other dependencies
+    v.stream.take(1).listen((_) {
+      ++numReady;
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    _subscriptions.add(v.stream.skip(1).listen((_) {
       if (mounted) {
         setState(() {});
       }
@@ -108,6 +138,7 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
 class VibeStatefulElement extends StatefulElement {
   VibeStatefulElement(super.widget);
   static final Map<Widget, VibeWidgetState> _statelessState = {};
+  static final Map<Widget, VibeContainer> _container = {};
 
   /// Sets the [BuildContext]
   static setState(Widget widget, VibeWidgetState state) =>
@@ -124,13 +155,25 @@ class VibeStatefulElement extends StatefulElement {
   static VibeWidgetState? getState(Widget widget) => _statelessState[widget];
 
   /// Gets the inherited [VibeContainer]
-  static VibeContainer getContainer(Widget widget) {
-    final context = getContext(widget);
-    assert(
-      context != null,
-      'You can not call [getContainer] with non-[VibeStatelessWidget]',
-    );
-    return InheritedVibeContainer.of(context!);
+  static VibeContainer? getContainer(Widget widget) {
+    return _container[widget];
+  }
+
+  /// Sets the inherited [VibeContainer]
+  static void setContainer(Widget widget, VibeContainer container) {
+    _container[widget] = container;
+  }
+
+  static void removeContainer(Widget widget) {
+    _container.remove(widget);
+  }
+
+  @override
+  VibeWidgetState get state => super.state as VibeWidgetState;
+
+  @override
+  Widget build() {
+    return state.ready ? super.build() : (state).loader(this);
   }
 }
 
