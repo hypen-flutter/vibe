@@ -6,3 +6,7 @@ include: package:flutter_lints/flutter.yaml
 linter:
   rules:
     - prefer_relative_imports
+    - sort_constructors_first
+    - sort_child_properties_last
+    - prefer_single_quotes
+    - always_put_required_named_parameters_first

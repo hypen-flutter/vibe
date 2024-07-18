@@ -135,7 +135,7 @@ class VibeList<E> implements List<E> {
   Iterator<E> get iterator => src.iterator;
 
   @override
-  String join([String separator = ""]) => src.join(separator);
+  String join([String separator = '']) => src.join(separator);
 
   @override
   int lastIndexOf(E element, [int? start]) => src.lastIndexOf(element, start);

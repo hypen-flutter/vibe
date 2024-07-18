@@ -27,6 +27,7 @@ class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   }
 
   Counter src = Counter();
+
   @override
   List<Object?> get props => [count];
 

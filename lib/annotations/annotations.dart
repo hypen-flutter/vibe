@@ -16,12 +16,21 @@ const noEffect = NoEffect();
 @Target({
   TargetKind.classType,
   TargetKind.enumType,
+  TargetKind.topLevelVariable,
 })
 class Vibe {
-  const Vibe([this.name]);
+  const Vibe({this.name});
 
   /// Indicates an alternative name of this [Vibe]
   final Symbol? name;
+}
+
+/// Mark a constructor to be used as a loadable [Vibe]
+class Loader {
+  const Loader([this.needs = const []]);
+
+  /// Dependencies needed while load a data
+  final List<dynamic> needs;
 }
 
 /// Marks a field as not a reactive field.
@@ -31,7 +40,7 @@ class NotVibe {
 }
 
 /// Marks a field to connect it to the other [Vibe] state.
-@Target({TargetKind.field})
+@Target({TargetKind.field, TargetKind.getter, TargetKind.setter})
 class LinkVibe {
   const LinkVibe([this.name]);
 
@@ -40,7 +49,6 @@ class LinkVibe {
 }
 
 /// Marks a field to selectively watch the other [Vibe] state.
-@Target({TargetKind.field})
 class SelectVibe {
   const SelectVibe(this.targets);
 

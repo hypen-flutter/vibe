@@ -81,7 +81,7 @@ class VibeSet<E> implements Set<E> {
   Iterator<E> get iterator => src.iterator;
 
   @override
-  String join([String separator = ""]) => src.join(separator);
+  String join([String separator = '']) => src.join(separator);
 
   @override
   E get last => src.last;
