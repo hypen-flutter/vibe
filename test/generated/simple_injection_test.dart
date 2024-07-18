@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vibe/states/states.dart';
 
-import 'counter_example.dart';
-import 'injection_example.dart';
+import 'examples/counter_example.dart';
+import 'examples/injection_example.dart';
 
 int main() {
   group('Simple Vibe', () {
