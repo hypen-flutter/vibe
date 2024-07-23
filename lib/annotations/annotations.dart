@@ -19,20 +19,20 @@ const noEffect = NoEffect();
   TargetKind.topLevelVariable,
 })
 class Vibe {
-  const Vibe({this.name, this.lazy = const [], this.autoDispose = true});
+  const Vibe({this.name, this.willLoad = const [], this.autoDispose = true});
 
   /// Indicates an alternative name of this [Vibe]
   final Symbol? name;
-  final List<Function> lazy;
+  final List<Function> willLoad;
   final bool autoDispose;
 }
 
 /// Mark a constructor to be used as a loadable [Vibe]
 class Loader {
-  const Loader([this.needs = const []]);
+  const Loader([this.requires = const []]);
 
   /// Dependencies needed while load a data
-  final List<dynamic> needs;
+  final List<dynamic> requires;
 }
 
 /// Marks a field as not a reactive field.
@@ -70,10 +70,10 @@ class StreamVibe {
 /// Marks a side effect of other [Vibe]s
 @Target({TargetKind.classType})
 class VibeEffect {
-  const VibeEffect(this.targets);
+  const VibeEffect(this.requires);
 
   /// List of target [Vibe]s
-  final List<dynamic> targets;
+  final List<dynamic> requires;
 }
 
 /// Makes code generator not generate side effect code.
