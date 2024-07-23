@@ -23,7 +23,11 @@ mixin Viber<T> on EquatableMixin {
 
   @nonVirtual
   void unref() {
+    assert(_refCount > 0);
     --_refCount;
+    // if (_refCount == 0 && autoDispose) {
+    //   dispose();
+    // }
   }
 
   @nonVirtual
@@ -42,8 +46,6 @@ mixin Viber<T> on EquatableMixin {
       d.unref();
     }
     _dependencies.clear();
-    if (autoDispose && _refCount == 0) {
-      container.remove(key);
-    }
+    container.remove(key);
   }
 }

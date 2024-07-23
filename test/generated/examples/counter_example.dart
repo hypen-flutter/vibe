@@ -3,7 +3,7 @@ import 'package:vibe/annotations/annotations.dart';
 import 'package:vibe/states/states.dart';
 
 @Vibe()
-class Counter {
+class Counter with _Counter {
   int count = 0;
 
   @NotVibe()
@@ -14,6 +14,17 @@ class Counter {
 
   @NoEffect()
   void increaseNothing() => ++nothing;
+
+  late final void Function() forTest;
+
+  @override
+  void dispose() {
+    forTest();
+  }
+}
+
+mixin _Counter {
+  void dispose() {}
 }
 
 class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
@@ -74,6 +85,21 @@ class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   @override
   void increaseNothing() {
     src.increaseNothing();
+    notify();
+  }
+
+  @override
+  void dispose() {
+    src.dispose();
+    super.dispose();
+  }
+
+  @override
+  void Function() get forTest => src.forTest;
+
+  @override
+  set forTest(val) {
+    src.forTest = val;
     notify();
   }
 }

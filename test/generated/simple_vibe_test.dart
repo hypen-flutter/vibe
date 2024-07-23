@@ -59,6 +59,15 @@ int main() {
       counter.increaseNothing();
       expect(counter.nothing, equals(1));
     });
+
+    test('auto dispose the counter when ref goes down to zero', () {
+      final cb = expectAsync0(() {}, count: 1);
+      counter.forTest = cb;
+      counter.increase();
+
+      final newCounter = $Counter.find(container);
+      expect(newCounter.count, equals(0));
+    });
   });
   return 0;
 }
