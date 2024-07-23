@@ -15,7 +15,7 @@ class Counter with _Counter {
   @NoEffect()
   void increaseNothing() => ++nothing;
 
-  late final void Function() forTest;
+  late void Function() forTest = () {};
 
   @override
   void dispose() {

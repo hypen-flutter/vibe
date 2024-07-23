@@ -25,9 +25,9 @@ mixin Viber<T> on EquatableMixin {
   void unref() {
     assert(_refCount > 0);
     --_refCount;
-    // if (_refCount == 0 && autoDispose) {
-    //   dispose();
-    // }
+    if (_refCount == 0 && autoDispose) {
+      dispose();
+    }
   }
 
   @nonVirtual

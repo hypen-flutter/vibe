@@ -14,10 +14,6 @@ int main() {
       counter = $Counter.find(container)..ref();
     });
 
-    tearDown(() {
-      counter.unref();
-    });
-
     test('can generate a stream initialization code ', () {
       expect(counter, isA<Counter>());
       expect(counter.stream, isA<Stream>());
@@ -64,9 +60,10 @@ int main() {
       final cb = expectAsync0(() {}, count: 1);
       counter.forTest = cb;
       counter.increase();
+      counter.unref();
 
-      final newCounter = $Counter.find(container);
-      expect(newCounter.count, equals(0));
+      counter = $Counter.find(container);
+      expect(counter.count, equals(0));
     });
   });
   return 0;
