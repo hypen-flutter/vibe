@@ -9,7 +9,7 @@ class MyEffect with $CounterEffect {}
 mixin $CounterEffect {
   late VibeContainer container;
   Counter get counter => $Counter.find(container);
-  void onCounterSetCount() {}
-  void onCounterIncrease() {}
-  void onCounterDecrease() {}
+  void onCounterSetCount() async {}
+  void onCounterIncrease() async {}
+  void onCounterDecrease() async {}
 }
