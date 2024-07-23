@@ -30,8 +30,12 @@ class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
 
   @override
   final VibeContainer container;
+
   @override
   bool get autoDispose => true;
+
+  @override
+  dynamic get key => Counter;
 
   Counter src = Counter();
 

@@ -12,6 +12,7 @@ mixin Viber<T> on EquatableMixin {
 
   bool get autoDispose;
   VibeContainer get container;
+  dynamic get key;
 
   int _refCount = 0;
 
@@ -41,5 +42,8 @@ mixin Viber<T> on EquatableMixin {
       d.unref();
     }
     _dependencies.clear();
+    if (autoDispose && _refCount == 0) {
+      container.remove(key);
+    }
   }
 }

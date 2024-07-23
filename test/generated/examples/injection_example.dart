@@ -79,6 +79,9 @@ class $Derived with EquatableMixin, Viber<$Derived> implements Derived {
   @override
   bool get autoDispose => true;
 
+  @override
+  dynamic get key => Derived;
+
   final src = Derived();
 
   @override
