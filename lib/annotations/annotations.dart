@@ -19,10 +19,12 @@ const noEffect = NoEffect();
   TargetKind.topLevelVariable,
 })
 class Vibe {
-  const Vibe({this.name});
+  const Vibe({this.name, this.lazy = const [], this.autoDispose = true});
 
   /// Indicates an alternative name of this [Vibe]
   final Symbol? name;
+  final List<Function> lazy;
+  final bool autoDispose;
 }
 
 /// Mark a constructor to be used as a loadable [Vibe]
