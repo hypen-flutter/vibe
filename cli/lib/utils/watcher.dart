@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:cli/utils/console.dart';
 import 'package:meta/meta.dart';
+
+import 'console.dart';
 
 abstract class Watcher {
   String get path;
@@ -10,22 +11,23 @@ abstract class Watcher {
   void onChange(VibeFile file) {}
 
   @nonVirtual
-  void run() async {
-    final events = Directory(path).watch(recursive: true);
-    await for (final event in events) {
+  Future<void> run() async {
+    final Stream<FileSystemEvent> events =
+        Directory(path).watch(recursive: true);
+    await for (final FileSystemEvent event in events) {
       try {
         switch (event) {
-          case FileSystemCreateEvent e:
+          case final FileSystemCreateEvent e:
             onCreate(VibeFile(e.path));
-          case FileSystemDeleteEvent e:
+          case final FileSystemDeleteEvent e:
             onDelete(VibeFile(e.path));
-          case FileSystemMoveEvent e:
+          case final FileSystemMoveEvent e:
             onDelete(VibeFile(e.path));
             onCreate(VibeFile(e.destination!));
-          case FileSystemModifyEvent e:
+          case final FileSystemModifyEvent e:
             onChange(VibeFile(e.path));
         }
-      } catch (e, _) {
+      } on Exception catch (e) {
         alert(e.toString());
       }
     }
