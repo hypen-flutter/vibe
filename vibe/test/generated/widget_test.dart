@@ -23,7 +23,8 @@ int main() {
           body: WidgetExample(),
         ),
       ));
-      await t.pumpAndSettle(); expect(find.text('0'), findsOneWidget);
+      await t.pumpAndSettle();
+      expect(find.text('0'), findsOneWidget);
       await t.tap(find.text('increase'));
       await t.pumpAndSettle();
       expect(find.text('1'), findsOneWidget);

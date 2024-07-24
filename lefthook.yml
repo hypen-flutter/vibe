@@ -5,3 +5,5 @@ pre-commit:
       run: dart fix --apply
     format:
       run: dart format .
+    restage:
+      run: git add -A
