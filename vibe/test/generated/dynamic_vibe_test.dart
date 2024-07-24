@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vibe/states/states.dart';
+import 'package:vibe/vibe.dart';
 
 import 'examples/dynamic_example.dart';
 

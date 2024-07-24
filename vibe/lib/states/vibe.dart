@@ -1,6 +1,9 @@
-part of 'states.dart';
+import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
+import 'package:rxdart/subjects.dart';
 
-typedef VibeFutureOr<T> = FutureOr<T>;
+import 'container.dart';
+import 'equals.dart';
 
 mixin Viber<T> on EquatableMixin {
   final subject = BehaviorSubject<List>();

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vibe/annotations/state_annotations.dart';
-import 'package:vibe/states/states.dart';
-import 'package:vibe/widgets/widgets.dart';
+import 'package:vibe/vibe.dart';
 
 import 'counter_example.dart';
 

@@ -1,5 +1,3 @@
-part of 'states.dart';
-
 /// A simple container maintains the streams
 class VibeContainer {
   final Map<dynamic, dynamic> _container = {};

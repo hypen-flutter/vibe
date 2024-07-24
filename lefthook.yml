@@ -8,8 +8,8 @@ pre-commit:
         for FILE in {staged_files}
         do
           dart fix --apply "${FILE}" &
-          pid = $!
-          pids += " ${pid}"
+          pid=$!
+          pids+=" ${pid}"
         done
         for pid in $pids
         do
@@ -26,3 +26,11 @@ pre-commit:
     3_analyze:
       glob: "*.dart"
       run: dart analyze {staged_files}
+
+pre-push:
+  parallel: true
+  commands:
+    test_cli:
+      run: cd cli && dart test
+    test_flutter:
+      run: cd vibe && flutter test

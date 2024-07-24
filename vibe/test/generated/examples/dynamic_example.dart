@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-import 'package:vibe/annotations/state_annotations.dart';
-import 'package:vibe/states/states.dart';
+import 'package:vibe/vibe.dart';
 
 class RemoteAPI {}
 
@@ -15,13 +13,15 @@ class User with _User {
   int count = 0;
 
   @override
-  VibeFutureOr<void> $loadNewUser(int userId, RemoteAPI api) async {
+  Future<void> $loadNewUser(int userId, RemoteAPI api) async {
+    return;
+
     // remote 에서 데이터를 채우는 작업
   }
 }
 
 mixin _User {
-  VibeFutureOr<void> $loadNewUser(int userId, RemoteAPI api);
+  Future<void> $loadNewUser(int userId, RemoteAPI api);
 }
 
 class $UserKey extends Equatable {
@@ -46,14 +46,9 @@ class $User with EquatableMixin, Viber<$User> implements User {
           final $User ret = $User(container);
           final User src = ret.src = User(userId);
           final RemoteAPI api = RemoteAPI(); // 원래는 $RemoteAPI.find(container);
-          final VibeFutureOr<void> result = src.$loadNewUser(userId, api);
-          if (result is Future) {
-            result.then((_) {
-              ret.notify();
-            });
-          } else {
+          src.$loadNewUser(userId, api).then((_) {
             ret.notify();
-          }
+          });
           return ret;
         }());
   }
@@ -72,7 +67,7 @@ class $User with EquatableMixin, Viber<$User> implements User {
   List<Object?> get props => <Object?>[userId];
 
   @override
-  VibeFutureOr<void> $loadNewUser(int userId, RemoteAPI api) =>
+  Future<void> $loadNewUser(int userId, RemoteAPI api) =>
       src.$loadNewUser(userId, api);
 
   @override

@@ -81,8 +81,6 @@ class StreamVibe {
 /// Marks a side effect of other [Vibe]s
 @Target(<TargetKind>{TargetKind.classType})
 class VibeEffect {
-  const VibeEffect(this.requires);
-
-  /// List of target [Vibe]s
-  final List<dynamic> requires;
+  const VibeEffect({this.uses});
+  final List<Function>? uses;
 }
