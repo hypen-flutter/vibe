@@ -19,11 +19,19 @@ const noEffect = NoEffect();
   TargetKind.topLevelVariable,
 })
 class Vibe {
-  const Vibe({this.name, this.willLoad = const [], this.autoDispose = true});
+  const Vibe({
+    this.name,
+    this.willLoad = const [],
+    this.autoDispose = true,
+  });
 
   /// Indicates an alternative name of this [Vibe]
   final Symbol? name;
+
+  /// Dynamically loadable [Vibe]
   final List<Function> willLoad;
+
+  /// Wheter disposing the state automatically
   final bool autoDispose;
 }
 
@@ -44,10 +52,13 @@ class NotVibe {
 /// Marks a field to connect it to the other [Vibe] state.
 @Target({TargetKind.field, TargetKind.getter, TargetKind.setter})
 class LinkVibe {
-  const LinkVibe([this.name]);
+  const LinkVibe({this.name, this.use});
 
   /// Indicates an alternative name of the other vibe
   final Symbol? name;
+
+  /// Constructors to be used
+  final Function? use;
 }
 
 /// Marks a field to selectively watch the other [Vibe] state.
