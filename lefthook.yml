@@ -2,8 +2,10 @@ pre-commit:
   piped: true
   commands:
     lint:
-      run: dart fix --apply
+      glob: "*.dart"
+      run: dart fix --apply {staged_files}
     format:
-      run: dart format .
+      glob: "*.dart"
+      run: dart format {staged_files}
     restage:
-      run: git add -A
+      run: git add {staged_files}
