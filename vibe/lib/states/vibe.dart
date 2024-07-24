@@ -23,7 +23,7 @@ mixin Viber<T> on EquatableMixin {
 
   @nonVirtual
   void unref() {
-    assert(_refCount > 0);
+    assert(_refCount > 0, 'Unreferences more than referenced');
     --_refCount;
     if (_refCount == 0 && autoDispose) {
       dispose();

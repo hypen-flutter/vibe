@@ -11,7 +11,7 @@ class VibeList<E> implements List<E> {
   E get first => src.first;
 
   @override
-  set first(newVal) {
+  set first(E newVal) {
     src.first = newVal;
     notify();
   }
@@ -29,7 +29,7 @@ class VibeList<E> implements List<E> {
   int get length => src.length;
 
   @override
-  set length(newVal) => src.length = newVal;
+  set length(int newVal) => src.length = newVal;
 
   @override
   List<E> operator +(List<E> other) => src + other;
@@ -156,37 +156,35 @@ class VibeList<E> implements List<E> {
 
   @override
   bool remove(Object? value) {
-    final ret = src.remove(value);
+    final bool ret = src.remove(value);
     notify();
     return ret;
   }
 
   @override
   E removeAt(int index) {
-    final ret = src.removeAt(index);
+    final E ret = src.removeAt(index);
     notify();
     return ret;
   }
 
   @override
   E removeLast() {
-    final ret = src.removeLast();
+    final E ret = src.removeLast();
     notify();
     return ret;
   }
 
   @override
   void removeRange(int start, int end) {
-    final ret = src.removeRange(start, end);
+    src.removeRange(start, end);
     notify();
-    return ret;
   }
 
   @override
   void removeWhere(bool Function(E element) test) {
-    final ret = src.removeWhere(test);
+    src.removeWhere(test);
     notify();
-    return ret;
   }
 
   @override

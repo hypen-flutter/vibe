@@ -20,47 +20,49 @@ int main() {
     });
 
     test('can have a initial value', () {
-      final cb = expectAsync1((c) => expect(c, isA<Counter>()));
+      final Func1<void, Object?> cb =
+          expectAsync1((Object? c) => expect(c, isA<Counter>()));
       counter.stream.listen(cb);
     });
 
     test('can notify the change on increase()', () {
-      final cb = expectAsync1((_) {}, count: 2);
+      final Func1<void, Object?> cb = expectAsync1((_) {}, count: 2);
       counter.stream.listen(cb);
       counter.increase();
       expect(counter.count, equals(1));
     });
     test('can notify the change on decrease()', () {
-      final cb = expectAsync1((_) {}, count: 2);
+      final Func1<void, Object?> cb = expectAsync1((_) {}, count: 2);
       counter.stream.listen(cb);
       counter.decrease();
       expect(counter.count, equals(-1));
     });
     test('can notify manual modification', () {
-      final cb = expectAsync1((_) {}, count: 2);
+      final Func1<void, Object?> cb = expectAsync1((_) {}, count: 2);
       counter.stream.listen(cb);
       counter.count++;
       expect(counter.count, equals(1));
     });
 
     test('does not notify when change the NotVibe', () {
-      final cb = expectAsync1((_) {}, count: 1);
+      final Func1<void, Object?> cb = expectAsync1((_) {});
       counter.stream.listen(cb);
       counter.nothing++;
       expect(counter.nothing, equals(1));
     });
     test('does not notify on increaseNothing()', () {
-      final cb = expectAsync1((_) {}, count: 1);
+      final Func1<void, Object?> cb = expectAsync1((_) {});
       counter.stream.listen(cb);
       counter.increaseNothing();
       expect(counter.nothing, equals(1));
     });
 
     test('auto dispose the counter when ref goes down to zero', () {
-      final cb = expectAsync0(() {}, count: 1);
-      counter.forTest = cb;
-      counter.increase();
-      counter.unref();
+      final Func0<void> cb = expectAsync0(() {});
+      counter
+        ..forTest = cb
+        ..increase()
+        ..unref();
 
       counter = $Counter.find(container);
       expect(counter.count, equals(0));

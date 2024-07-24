@@ -5,9 +5,11 @@ import 'package:rxdart/subjects.dart';
 int main() {
   group('ZipStream', () {
     test('immediately emmit when it combines [BehaviorSubject]', () async {
-      final subject = BehaviorSubject<int>()..add(0);
-      final cb = expectAsync1((_) {}, count: 1);
-      ZipStream([subject.stream], (v) => v[0]).listen(cb);
+      final BehaviorSubject<int> subject = BehaviorSubject<int>()..add(0);
+      final Func1<void, Object?> cb = expectAsync1((_) {});
+      ZipStream(<ValueStream<int>>[subject.stream], (List<int> v) => v[0])
+          .listen(cb);
+      await subject.close();
     });
   });
   return 0;

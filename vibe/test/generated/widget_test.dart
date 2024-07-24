@@ -5,7 +5,7 @@ import 'examples/widget_example.dart';
 
 int main() {
   group('VibeWidget example', () {
-    testWidgets('can get the dependency', (t) async {
+    testWidgets('can get the dependency', (WidgetTester t) async {
       await t.pumpWidget(const MaterialApp(
         key: ValueKey('0'),
         home: Scaffold(
@@ -16,15 +16,14 @@ int main() {
       expect(find.text('0'), findsOneWidget);
     });
 
-    testWidgets('can rebuild on change', (t) async {
+    testWidgets('can rebuild on change', (WidgetTester t) async {
       await t.pumpWidget(const MaterialApp(
         key: ValueKey('1'),
         home: Scaffold(
           body: WidgetExample(),
         ),
       ));
-      await t.pumpAndSettle();
-      expect(find.text('0'), findsOneWidget);
+      await t.pumpAndSettle(); expect(find.text('0'), findsOneWidget);
       await t.tap(find.text('increase'));
       await t.pumpAndSettle();
       expect(find.text('1'), findsOneWidget);

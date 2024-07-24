@@ -1,19 +1,21 @@
+import 'dart:io';
+
 import 'package:meta/meta_meta.dart';
 
 /// [Vibe] without an argument
-const vibe = Vibe();
+const Vibe vibe = Vibe();
 
 /// [NotVibe]
-const notVibe = NotVibe();
+const NotVibe notVibe = NotVibe();
 
 /// [Link] without an argument
-const link = LinkVibe();
+const LinkVibe link = LinkVibe();
 
 /// [NoEffect]
-const noEffect = NoEffect();
+const NoEffect noEffect = NoEffect();
 
 /// Marks a class as it is a reactive state class
-@Target({
+@Target(<TargetKind>{
   TargetKind.classType,
   TargetKind.enumType,
   TargetKind.topLevelVariable,
@@ -21,7 +23,7 @@ const noEffect = NoEffect();
 class Vibe {
   const Vibe({
     this.name,
-    this.willLoad = const [],
+    this.willLoad = const <Function>[],
     this.autoDispose = true,
   });
 
@@ -37,20 +39,20 @@ class Vibe {
 
 /// Mark a constructor to be used as a loadable [Vibe]
 class Loader {
-  const Loader([this.requires = const []]);
+  const Loader([this.requires = const <dynamic>[]]);
 
   /// Dependencies needed while load a data
   final List<dynamic> requires;
 }
 
 /// Marks a field as not a reactive field.
-@Target({TargetKind.field})
+@Target(<TargetKind>{TargetKind.field})
 class NotVibe {
   const NotVibe();
 }
 
 /// Marks a field to connect it to the other [Vibe] state.
-@Target({TargetKind.field, TargetKind.getter, TargetKind.setter})
+@Target(<TargetKind>{TargetKind.field, TargetKind.getter, TargetKind.setter})
 class LinkVibe {
   const LinkVibe({this.name, this.use});
 
@@ -70,7 +72,7 @@ class SelectVibe {
 }
 
 /// Marks a field to continuely watch the other [Vibe] state.
-@Target({TargetKind.field})
+@Target(<TargetKind>{TargetKind.field})
 class StreamVibe {
   const StreamVibe(this.targets);
 
@@ -79,7 +81,7 @@ class StreamVibe {
 }
 
 /// Marks a side effect of other [Vibe]s
-@Target({TargetKind.classType})
+@Target(<TargetKind>{TargetKind.classType})
 class VibeEffect {
   const VibeEffect(this.requires);
 
@@ -88,7 +90,7 @@ class VibeEffect {
 }
 
 /// Makes code generator not generate side effect code.
-@Target({TargetKind.field, TargetKind.method})
+@Target(<TargetKind>{TargetKind.field, TargetKind.method})
 class NoEffect {
   const NoEffect();
 }

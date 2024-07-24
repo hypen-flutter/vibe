@@ -7,7 +7,7 @@ class RemoteAPI {}
 @Vibe()
 class User with _User {
   // 로딩에 필요한 다른 vibe 인젝션
-  @Loader([RemoteAPI])
+  @Loader(<dynamic>[RemoteAPI])
   User(this.userId);
 
   final int userId;
@@ -30,7 +30,7 @@ class $UserKey extends Equatable {
   final int userId;
 
   @override
-  List<Object?> get props => [userId];
+  List<Object?> get props => <Object?>[userId];
 }
 
 extension CreateUserKey on User {
@@ -40,13 +40,13 @@ extension CreateUserKey on User {
 class $User with EquatableMixin, Viber<$User> implements User {
   $User(this.container);
   static $User findUserNew(VibeContainer container, int userId) {
-    final key = $UserKey(userId);
+    final $UserKey key = $UserKey(userId);
     return container.find<$User>(key) ??
         container.add<$User>(key, () {
-          final ret = $User(container);
-          final src = ret.src = User(userId);
-          final api = RemoteAPI(); // 원래는 $RemoteAPI.find(container);
-          final result = src.$loadNewUser(userId, api);
+          final $User ret = $User(container);
+          final User src = ret.src = User(userId);
+          final RemoteAPI api = RemoteAPI(); // 원래는 $RemoteAPI.find(container);
+          final VibeFutureOr<void> result = src.$loadNewUser(userId, api);
           if (result is Future) {
             result.then((_) {
               ret.notify();
@@ -69,7 +69,7 @@ class $User with EquatableMixin, Viber<$User> implements User {
 
   late User src;
   @override
-  List<Object?> get props => [userId];
+  List<Object?> get props => <Object?>[userId];
 
   @override
   VibeFutureOr<void> $loadNewUser(int userId, RemoteAPI api) =>
@@ -81,13 +81,13 @@ class $User with EquatableMixin, Viber<$User> implements User {
   @override
   int get count => src.count;
   @override
-  set count(val) {
+  set count(int val) {
     src.count = val;
     notify();
   }
 }
 
-@Vibe(willLoad: [User.new])
+@Vibe(willLoad: <Function>[User.new])
 class Usecase with _Usecase {
   Usecase();
   User loadUser(int userId) => userNew(userId);
@@ -100,16 +100,14 @@ mixin _Usecase {
 class $Usecase with EquatableMixin, Viber<$Usecase> implements Usecase {
   $Usecase(this.container);
 
-  static $Usecase find(VibeContainer container) {
-    return (container.find<$Usecase>(Usecase) ??
-        container.add<$Usecase>(Usecase, () {
-          final ret = $Usecase(container);
-          ret.src.userNew =
-              (int userId) => $User.findUserNew(container, userId);
-          ret.notify();
-          return ret;
-        }()));
-  }
+  factory $Usecase.find(VibeContainer container) =>
+      container.find<$Usecase>(Usecase) ??
+      container.add<$Usecase>(Usecase, () {
+        final $Usecase ret = $Usecase(container);
+        ret.src.userNew = (int userId) => $User.findUserNew(container, userId);
+        ret.notify();
+        return ret;
+      }());
 
   @override
   final VibeContainer container;
@@ -121,7 +119,7 @@ class $Usecase with EquatableMixin, Viber<$Usecase> implements Usecase {
   dynamic get key => Usecase;
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => <Object?>[];
 
   final Usecase src = Usecase();
 

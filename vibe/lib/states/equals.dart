@@ -1,3 +1,4 @@
 import 'package:collection/collection.dart';
 
-final deepEquals = const DeepCollectionEquality().equals;
+final bool Function(Object? e1, Object? e2) deepEquals =
+    const DeepCollectionEquality().equals;

@@ -103,9 +103,9 @@ class VibeMap<K, V> implements Map<K, V> {
   Iterable<V> get values => src.values;
 
   void _notifyWhenChanged(void Function() callback) {
-    int len = length;
+    final int len = length;
     callback();
-    int afterLen = length;
+    final int afterLen = length;
     if (len != afterLen) {
       notify();
     }

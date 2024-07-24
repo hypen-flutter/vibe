@@ -7,9 +7,9 @@ int main() {
   group('VibeContainer', () {
     late VibeContainer container;
     setUp(() {
-      container = VibeContainer();
-      container.add(Counter, const Stream<Counter>.empty());
-      container.add(#Counter, const Stream<Counter>.empty());
+      container = VibeContainer()
+        ..add(Counter, const Stream<Counter>.empty())
+        ..add(#Counter, const Stream<Counter>.empty());
     });
 
     test('can retrieve streams', () async {

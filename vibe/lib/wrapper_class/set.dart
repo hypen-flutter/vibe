@@ -7,7 +7,7 @@ class VibeSet<E> implements Set<E> {
 
   @override
   bool add(E value) {
-    final ret = src.add(value);
+    final bool ret = src.add(value);
     if (ret) {
       notify();
     }
@@ -104,7 +104,7 @@ class VibeSet<E> implements Set<E> {
 
   @override
   bool remove(Object? value) {
-    final ret = src.remove(value);
+    final bool ret = src.remove(value);
     if (ret) {
       notify();
     }
@@ -174,9 +174,9 @@ class VibeSet<E> implements Set<E> {
   Iterable<T> whereType<T>() => src.whereType();
 
   void _notifyWhenChanged(void Function() callback) {
-    int len = length;
+    final int len = length;
     callback();
-    int afterLen = length;
+    final int afterLen = length;
     if (len != afterLen) {
       notify();
     }

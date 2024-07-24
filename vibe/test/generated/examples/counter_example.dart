@@ -30,14 +30,12 @@ mixin _Counter {
 class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   $Counter(this.container);
 
-  static $Counter find(VibeContainer container) {
-    return (container.find<$Counter>(Counter) ??
-        container.add<$Counter>(Counter, () {
-          final ret = $Counter(container);
-          ret.notify();
-          return ret;
-        }()));
-  }
+  factory $Counter.find(VibeContainer container) =>
+      container.find<$Counter>(Counter) ??
+      container.add<$Counter>(Counter, () {
+        final $Counter ret = $Counter(container)..notify();
+        return ret;
+      }());
 
   @override
   final VibeContainer container;
@@ -51,13 +49,13 @@ class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   Counter src = Counter();
 
   @override
-  List<Object?> get props => [count];
+  List<Object?> get props => <Object?>[count];
 
   @override
   int get count => src.count;
 
   @override
-  set count(val) {
+  set count(int val) {
     src.count = val;
     notify();
   }
@@ -66,7 +64,7 @@ class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   int get nothing => src.nothing;
 
   @override
-  set nothing(val) {
+  set nothing(int val) {
     src.nothing = val;
   }
 
@@ -98,7 +96,7 @@ class $Counter with EquatableMixin, Viber<$Counter> implements Counter {
   void Function() get forTest => src.forTest;
 
   @override
-  set forTest(val) {
+  set forTest(void Function() val) {
     src.forTest = val;
     notify();
   }

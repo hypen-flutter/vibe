@@ -7,11 +7,11 @@ int main() {
     late _Callback callback;
     setUp(() {
       callback = _Callback();
-      list = VibeList([], callback.call);
+      list = VibeList(<int>[], callback.call);
     });
 
     void prepare() {
-      callback.callback = expectAsync0(() {}, count: 1);
+      callback.callback = expectAsync0(() {});
     }
 
     test('add can notify', () {
@@ -25,7 +25,7 @@ int main() {
     });
     test('addAll can notify', () {
       prepare();
-      list.addAll([1, 2, 3, 4]);
+      list.addAll(<int>[1, 2, 3, 4]);
     });
     test('change element can notify', () {
       list.add(1);

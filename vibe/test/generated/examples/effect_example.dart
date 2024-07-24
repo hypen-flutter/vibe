@@ -3,13 +3,13 @@ import 'package:vibe/states/states.dart';
 
 import 'counter_example.dart';
 
-@VibeEffect([Counter])
+@VibeEffect(<dynamic>[Counter])
 class MyEffect with $CounterEffect {}
 
 mixin $CounterEffect {
   late VibeContainer container;
   Counter get counter => $Counter.find(container);
-  void onCounterSetCount() async {}
-  void onCounterIncrease() async {}
-  void onCounterDecrease() async {}
+  Future<void> onCounterSetCount() async {}
+  Future<void> onCounterIncrease() async {}
+  Future<void> onCounterDecrease() async {}
 }
