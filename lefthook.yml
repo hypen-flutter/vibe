@@ -1,7 +1,7 @@
 pre-commit:
   piped: true
   commands:
-    lint:
+    1_lint:
       glob: "*.dart"
       run: |
         for FILE in {staged_files}
@@ -9,10 +9,10 @@ pre-commit:
           dart fix --apply "${FILE}"
         done
       stage_fixed: true
-    format:
+    2_format:
       glob: "*.dart"
       run: dart format {staged_files}
       stage_fixed: true
-    analyze:
+    3_analyze:
       glob: "*.dart"
       run: dart analyze {staged_files}
