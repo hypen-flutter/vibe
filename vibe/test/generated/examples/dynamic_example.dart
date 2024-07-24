@@ -87,9 +87,10 @@ class $User with EquatableMixin, Viber<$User> implements User {
   }
 }
 
-@Vibe(willLoad: <Function>[User.new])
+@Vibe()
 class Usecase with _Usecase {
   Usecase();
+  @LinkVibe(use: User.new)
   User loadUser(int userId) => userNew(userId);
 }
 

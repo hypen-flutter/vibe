@@ -20,15 +20,11 @@ const LinkVibe link = LinkVibe();
 class Vibe {
   const Vibe({
     this.name,
-    this.willLoad = const <Function>[],
     this.autoDispose = true,
   });
 
   /// Indicates an alternative name of this [Vibe]
   final Symbol? name;
-
-  /// Dynamically loadable [Vibe]
-  final List<Function> willLoad;
 
   /// Wheter disposing the state automatically
   final bool autoDispose;
@@ -49,7 +45,12 @@ class NotVibe {
 }
 
 /// Marks a field to connect it to the other [Vibe] state.
-@Target(<TargetKind>{TargetKind.field, TargetKind.getter, TargetKind.setter})
+@Target(<TargetKind>{
+  TargetKind.field,
+  TargetKind.getter,
+  TargetKind.setter,
+  TargetKind.method
+})
 class LinkVibe {
   const LinkVibe({this.name, this.use});
 
