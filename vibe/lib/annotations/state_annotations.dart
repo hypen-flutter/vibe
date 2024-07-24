@@ -11,9 +11,6 @@ const NotVibe notVibe = NotVibe();
 /// [Link] without an argument
 const LinkVibe link = LinkVibe();
 
-/// [NoEffect]
-const NoEffect noEffect = NoEffect();
-
 /// Marks a class as it is a reactive state class
 @Target(<TargetKind>{
   TargetKind.classType,
@@ -87,10 +84,4 @@ class VibeEffect {
 
   /// List of target [Vibe]s
   final List<dynamic> requires;
-}
-
-/// Makes code generator not generate side effect code.
-@Target(<TargetKind>{TargetKind.field, TargetKind.method})
-class NoEffect {
-  const NoEffect();
 }

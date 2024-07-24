@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vibe/annotations/annotations.dart';
+import 'package:vibe/annotations/state_annotations.dart';
 import 'package:vibe/states/states.dart';
 
 @Vibe()
@@ -12,7 +12,6 @@ class Counter with _Counter {
   void increase() => ++count;
   void decrease() => --count;
 
-  @NoEffect()
   void increaseNothing() => ++nothing;
 
   late void Function() forTest = () {};

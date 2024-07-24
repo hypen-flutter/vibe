@@ -3,9 +3,16 @@ pre-commit:
   commands:
     lint:
       glob: "*.dart"
-      run: dart fix --apply {staged_files}
+      run: |
+        for FILE in {staged_files}
+        do
+          dart fix --apply "${FILE}"
+        done
+      stage_fixed: true
     format:
       glob: "*.dart"
       run: dart format {staged_files}
-    restage:
-      run: git add {staged_files}
+      stage_fixed: true
+    analyze:
+      glob: "*.dart"
+      run: dart analyze {staged_files}

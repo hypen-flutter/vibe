@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../annotations/annotations.dart';
+import '../annotations/state_annotations.dart';
 import '../states/states.dart';
 
 /// Vibe version of [StatelessWidget]

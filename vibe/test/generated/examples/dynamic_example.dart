@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:vibe/annotations/annotations.dart';
+import 'package:vibe/annotations/state_annotations.dart';
 import 'package:vibe/states/states.dart';
 
 class RemoteAPI {}
