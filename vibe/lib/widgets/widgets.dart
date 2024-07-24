@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../annotations/state_annotations.dart';
 import '../states/container.dart';
-import '../states/vibe.dart';
+import '../states/viber.dart';
 
 /// Vibe version of [StatelessWidget]
 abstract class VibeStatelessWidget extends VibeStatefulWidget {
