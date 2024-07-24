@@ -3,6 +3,7 @@ pre-commit:
   commands:
     1_lint:
       glob: "*.dart"
+      follow: false
       run: |
         pids=""
         for FILE in {staged_files}
@@ -30,7 +31,7 @@ pre-commit:
 pre-push:
   parallel: true
   commands:
-    test_cli:
-      run: cd cli && dart test
-    test_flutter:
-      run: cd vibe && flutter test
+    test:
+      run: |
+        cd cli && dart test &&
+        cd ../vibe && flutter test
