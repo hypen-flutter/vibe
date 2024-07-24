@@ -6,12 +6,16 @@ version: 0.0.1
 environment:
   sdk: ^3.4.4
 
+executables:
+  vibe: main
+
 # Add regular dependencies here.
 dependencies:
   analyzer: ^6.5.0
   ansicolor: ^2.0.2
   args: ^2.5.0
   async: ^2.11.0
+  cli_completion: ^0.5.0
   dart_style: ^2.3.6
   meta: ^1.15.0
   path: ^1.9.0

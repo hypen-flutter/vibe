@@ -18,14 +18,14 @@ abstract class Watcher {
       try {
         switch (event) {
           case final FileSystemCreateEvent e:
-            onCreate(VibeFile(e.path));
+            onCreate(VibeFile(e.path.absolutePath));
           case final FileSystemDeleteEvent e:
-            onDelete(VibeFile(e.path));
+            onDelete(VibeFile(e.path.absolutePath));
           case final FileSystemMoveEvent e:
-            onDelete(VibeFile(e.path));
-            onCreate(VibeFile(e.destination!));
+            onDelete(VibeFile(e.path.absolutePath));
+            onCreate(VibeFile(e.destination!.absolutePath));
           case final FileSystemModifyEvent e:
-            onChange(VibeFile(e.path));
+            onChange(VibeFile(e.path.absolutePath));
         }
       } on Exception catch (e) {
         alert(e.toString());
@@ -35,6 +35,10 @@ abstract class Watcher {
 }
 
 class VibeFile {
-  VibeFile(this.path);
-  final String path;
+  VibeFile(this.absolutePath);
+  final String absolutePath;
+}
+
+extension on String {
+  String get absolutePath => File(this).absolute.path;
 }
