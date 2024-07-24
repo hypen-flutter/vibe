@@ -3,7 +3,7 @@ import 'package:vibe/vibe.dart';
 
 import 'counter_example.dart';
 
-class WidgetExample extends VibeStatelessWidget with _WidgetExample {
+class WidgetExample extends VibeWidget with _WidgetExample {
   const WidgetExample({super.key});
 
   @LinkVibe()
@@ -23,7 +23,7 @@ class WidgetExample extends VibeStatelessWidget with _WidgetExample {
       );
 }
 
-mixin _WidgetExample on VibeStatelessWidget {
+mixin _WidgetExample on VibeWidget {
   VibeContainer get _container => VibeStatefulElement.getContainer(this)!;
   VibeWidgetState get _state => VibeStatefulElement.getState(this)!;
 

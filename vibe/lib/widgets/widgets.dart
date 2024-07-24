@@ -8,8 +8,8 @@ import '../states/container.dart';
 import '../states/viber.dart';
 
 /// Vibe version of [StatelessWidget]
-abstract class VibeStatelessWidget extends VibeStatefulWidget {
-  const VibeStatelessWidget({super.key});
+abstract class VibeWidget extends VibeStatefulWidget {
+  const VibeWidget({super.key});
 
   /// Build loading [Widget] while async [Vibe] is loading
   Widget loader(BuildContext context) =>
@@ -26,7 +26,7 @@ abstract class VibeStatelessWidget extends VibeStatefulWidget {
       _VibeStatelessWidgetState();
 }
 
-class _VibeStatelessWidgetState extends VibeWidgetState<VibeStatelessWidget> {
+class _VibeStatelessWidgetState extends VibeWidgetState<VibeWidget> {
   @override
   List<Viber Function()> get initializers => widget.initializers;
 
