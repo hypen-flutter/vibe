@@ -1,0 +1,7 @@
+pre-commit:
+  piped: true
+  commands:
+    lint:
+      run: dart fix --apply
+    format:
+      run: dart format .
