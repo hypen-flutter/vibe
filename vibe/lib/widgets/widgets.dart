@@ -24,6 +24,8 @@ abstract class VibeWidget extends VibeStatefulWidget {
   @override
   VibeWidgetState<VibeStatefulWidget> createState() =>
       _VibeStatelessWidgetState();
+  VibeContainer get $container => VibeStatefulElement.getContainer(this)!;
+  VibeWidgetState get $state => VibeStatefulElement.getState(this)!;
 }
 
 class _VibeStatelessWidgetState extends VibeWidgetState<VibeWidget> {

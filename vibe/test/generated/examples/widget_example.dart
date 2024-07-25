@@ -24,17 +24,14 @@ class WidgetExample extends VibeWidget with _WidgetExample {
 }
 
 mixin _WidgetExample on VibeWidget {
-  VibeContainer get _container => VibeStatefulElement.getContainer(this)!;
-  VibeWidgetState get _state => VibeStatefulElement.getState(this)!;
-
   static final Map<dynamic, $Counter> _counter = <dynamic, $Counter>{};
 
   Counter getCounter() {
     if (_counter[this] != null) {
       return _counter[this]!;
     }
-    _counter[this] = $Counter.find(_container);
-    _state.addVibe(_counter[this]!, () {
+    _counter[this] = $Counter.find($container);
+    $state.addVibe(_counter[this]!, () {
       _counter.remove(this);
     });
     return _counter[this]!;
