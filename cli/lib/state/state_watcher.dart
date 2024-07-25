@@ -130,7 +130,6 @@ $code
     final List<FieldElement> vibeFields = fields
         .where((FieldElement e) => !notVibeAnnotation.hasAnnotationOf(e))
         .toList();
-    final List<MethodElement> methods = element.methods.toList();
     final String name = element.displayName;
     final String vibeClassName = name.vibeClass;
 
@@ -143,75 +142,7 @@ mixin ${name.vibeMixin} {
     final String equatableProps =
         vibeFields.map((FieldElement e) => e.name).join(', ');
 
-    final String fielsdRedirection = fields.map((FieldElement e) {
-      final String type = e.type.toString();
-      final String name = e.name;
-      return '''
-@override
-$type get $name => src.$name;
-
-@override
-set $name($type val) {
-  src.$name = val;
-  notify();
-}
-''';
-    }).join('\n');
-
     final Set<String> generatedMethods = <String>{'dispose'};
-
-    final String methodsRedirection = methods
-        .where((MethodElement m) => !generatedMethods.contains(m.name))
-        .map((MethodElement m) {
-      final String name = m.name;
-      final Iterable<ParameterElement> positionals =
-          m.parameters.where((ParameterElement p) => p.isPositional);
-      final Iterable<ParameterElement> named =
-          m.parameters.where((ParameterElement p) => p.isNamed);
-      final String positionalRedirection =
-          positionals.map((ParameterElement p) => p.name).join(',');
-      final String namedRedirection =
-          named.map((ParameterElement p) => '${p.name}: ${p.name}').join(',');
-      final String argsRedirections = <String>[
-        positionalRedirection,
-        namedRedirection
-      ].where((String s) => s.isNotEmpty).join(',');
-
-      final DartType returnType = m.returnType;
-      final bool isFutureFunction = m.isAsynchronous;
-      final bool isFutureOrFunction = returnType.isDartAsyncFutureOr;
-
-      final String redirection = returnType is VoidType
-          ? 'src.$name($argsRedirections);'
-          : 'final $returnType ret = src.$name($argsRedirections);';
-
-      final String returning = returnType is VoidType ? '' : 'return ret;';
-
-      final String notify = isFutureFunction
-          ? '''
-ret.then((_) => notify());
-'''
-          : isFutureOrFunction
-              ? '''
-if (ret is Future) {
-  ret.then((_) => notify());
-} else {
-  notify();
-}
-'''
-              : '''
-notify();
-''';
-
-      return '''
-@override
-$m {
-  $redirection
-  $notify
-  $returning
-} 
-''';
-    }).join('\n');
 
     final String viber = '''
 class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $name {
@@ -241,9 +172,9 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   @override
   List<Object?> get props => <Object?>[$equatableProps];
 
-  $fielsdRedirection
+  ${_generateFieldsRedirection(fields)}
 
-  $methodsRedirection
+  ${_generateMethodsRedirection(element, generatedMethods)}
 
   @override
   void dispose() {
@@ -258,6 +189,82 @@ $mixin
 $viber
 ''';
   }
+
+  String _generateFieldsRedirection(List<FieldElement> fields) =>
+      fields.map((FieldElement e) {
+        final String type = e.type.toString();
+        final String name = e.name;
+        final bool isSetter = e.setter != null;
+        return '''
+@override
+$type get $name => src.$name;
+
+${isSetter ? '''
+@override
+set $name($type val) {
+src.$name = val;
+notify();
+}
+''' : ''}
+
+''';
+      }).join('\n');
+
+  String _generateMethodsRedirection(
+          ClassElement element, Set<String> generatedMethods) =>
+      element.methods
+          .toList()
+          .where((MethodElement m) => !generatedMethods.contains(m.name))
+          .map((MethodElement m) {
+        final String name = m.name;
+        final Iterable<ParameterElement> positionals =
+            m.parameters.where((ParameterElement p) => p.isPositional);
+        final Iterable<ParameterElement> named =
+            m.parameters.where((ParameterElement p) => p.isNamed);
+        final String positionalRedirection =
+            positionals.map((ParameterElement p) => p.name).join(',');
+        final String namedRedirection =
+            named.map((ParameterElement p) => '${p.name}: ${p.name}').join(',');
+        final String argsRedirections = <String>[
+          positionalRedirection,
+          namedRedirection
+        ].where((String s) => s.isNotEmpty).join(',');
+
+        final DartType returnType = m.returnType;
+        final bool isFutureFunction = m.isAsynchronous;
+        final bool isFutureOrFunction = returnType.isDartAsyncFutureOr;
+
+        final String redirection = returnType is VoidType
+            ? 'src.$name($argsRedirections);'
+            : 'final $returnType ret = src.$name($argsRedirections);';
+
+        final String returning = returnType is VoidType ? '' : 'return ret;';
+
+        final String notify = isFutureFunction
+            ? '''
+  ret.then((_) => notify());
+  '''
+            : isFutureOrFunction
+                ? '''
+  if (ret is Future) {
+    ret.then((_) => notify());
+  } else {
+    notify();
+  }
+  '''
+                : '''
+  notify();
+  ''';
+
+        return '''
+  @override
+  $m {
+    $redirection
+    $notify
+    $returning
+  } 
+  ''';
+      }).join('\n');
 
   Future<String> generateWidgetExtension(ClassElement element) async => '';
 }

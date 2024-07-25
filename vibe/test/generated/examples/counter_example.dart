@@ -9,6 +9,8 @@ class Counter with _Counter {
   @NotVibe()
   int? nothing = 0;
 
+  final unmodifiable = 0;
+
   void increase() => ++count;
   void decrease() => --count;
 

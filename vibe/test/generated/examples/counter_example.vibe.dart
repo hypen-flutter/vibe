@@ -30,7 +30,7 @@ class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
   Counter src = Counter();
 
   @override
-  List<Object?> get props => <Object?>[count, forTest];
+  List<Object?> get props => <Object?>[count, unmodifiable, forTest];
 
   @override
   int get count => src.count;
@@ -49,6 +49,9 @@ class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
     src.nothing = val;
     notify();
   }
+
+  @override
+  int get unmodifiable => src.unmodifiable;
 
   @override
   void Function() get forTest => src.forTest;
