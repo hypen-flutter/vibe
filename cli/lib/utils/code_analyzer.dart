@@ -10,17 +10,17 @@ class Analyzer {
   final List<String> path;
   late final AnalysisContextCollection contextCollection;
 
-  AnalysisContext contextFor(String path) =>
+  AnalysisContext _contextFor(String path) =>
       contextCollection.contextFor(path.absolutePath);
 
   Future<Set<String>> applyChanges(String path) async {
-    final AnalysisContext context = contextFor(path)..changeFile(path);
+    final AnalysisContext context = _contextFor(path)..changeFile(path);
     final List<String> changedFiles = await context.applyPendingFileChanges();
     return changedFiles.toSet()..add(path.absolutePath);
   }
 
   Future<LibraryElement?> libraryFor(String path) async {
-    final AnalysisContext context = contextFor(path);
+    final AnalysisContext context = _contextFor(path);
     final SomeResolvedLibraryResult result =
         await context.currentSession.getResolvedLibrary(path);
 

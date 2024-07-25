@@ -9,7 +9,7 @@ bool isProjectFile(VibeFile file) {
       relativePath.startsWith('test/');
 }
 
-void forProjectFiles(VibeFile file, void Function() run) {
+Future<void> forProjectFiles(VibeFile file, void Function() run) async {
   if (!isProjectFile(file)) {
     return;
   }

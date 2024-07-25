@@ -4,20 +4,21 @@ pre-commit:
     1_lint:
       glob: "*.dart"
       run: |
-        pids=""
-        for FILE in {staged_files}
-        do
-          dart fix --apply "${FILE}" &
-          pid=$!
-          pids+=" ${pid}"
-        done
-        for pid in $pids
-        do
-          if ! wait "$pid"
-          then
-            exit 1
-          fi
-        done
+        dart fix --apply
+        # pids=""
+        # for FILE in {staged_files}
+        # do
+        #   dart fix --apply "${FILE}" &
+        #   pid=$!
+        #   pids+=" ${pid}"
+        # done
+        # for pid in $pids
+        # do
+        #   if ! wait "$pid"
+        #   then
+        #     exit 1
+        #   fi
+        # done
       stage_fixed: true
     2_format:
       glob: "*.dart"
