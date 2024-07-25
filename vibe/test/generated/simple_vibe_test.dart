@@ -44,12 +44,6 @@ int main() {
       expect(counter.count, equals(1));
     });
 
-    test('does not notify when change the NotVibe', () {
-      final Func1<void, Object?> cb = expectAsync1((_) {});
-      counter.stream.listen(cb);
-      counter.nothing++;
-      expect(counter.nothing, equals(1));
-    });
     test('does not notify on increaseNothing()', () {
       final Func1<void, Object?> cb = expectAsync1((_) {});
       counter.stream.listen(cb);

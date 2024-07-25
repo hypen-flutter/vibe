@@ -1,17 +1,28 @@
-import 'dart:io';
-
 import 'package:analyzer/dart/analysis/analysis_context.dart';
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:path/path.dart' as p;
+
+import 'path.dart';
 
 class Analyzer {
   Analyzer(this.path);
   final List<String> path;
-  late final AnalysisContextCollection contextCollection;
+  late final AnalysisContextCollection contextCollection =
+      AnalysisContextCollection(includedPaths: path);
 
-  AnalysisContext _contextFor(String path) =>
-      contextCollection.contextFor(path.absolutePath);
+  AnalysisContext _contextFor(String path) {
+    final String relativePath = p.relative(path);
+    if (relativePath.startsWith('bin')) {
+      return contextCollection.contextFor('bin'.absolutePath);
+    } else if (relativePath.startsWith('lib')) {
+      return contextCollection.contextFor('lib'.absolutePath);
+    } else if (relativePath.startsWith('test')) {
+      return contextCollection.contextFor('test'.absolutePath);
+    }
+    return contextCollection.contextFor(path.absolutePath);
+  }
 
   Future<Set<String>> applyChanges(String path) async {
     final AnalysisContext context = _contextFor(path)..changeFile(path);
@@ -29,8 +40,4 @@ class Analyzer {
       SomeResolvedLibraryResult() => null,
     };
   }
-}
-
-extension on String {
-  String get absolutePath => File(this).absolute.path;
 }

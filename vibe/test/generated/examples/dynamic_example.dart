@@ -24,7 +24,7 @@ mixin _User {
   Future<void> $loadNewUser(int userId, RemoteAPI api);
 }
 
-class $UserKey extends Equatable {
+class $UserKey with VibeEquatableMixin {
   const $UserKey(this.userId);
 
   final int userId;
@@ -37,7 +37,7 @@ extension CreateUserKey on User {
   $UserKey key() => $UserKey(userId);
 }
 
-class $User with EquatableMixin, Viber<$User> implements User {
+class $User with VibeEquatableMixin, Viber<$User> implements User {
   $User(this.container);
   static $User findUserNew(VibeContainer container, int userId) {
     final $UserKey key = $UserKey(userId);
@@ -93,7 +93,7 @@ mixin _Usecase {
   late final User Function(int userId) userNew;
 }
 
-class $Usecase with EquatableMixin, Viber<$Usecase> implements Usecase {
+class $Usecase with VibeEquatableMixin, Viber<$Usecase> implements Usecase {
   $Usecase(this.container);
 
   factory $Usecase.find(VibeContainer container) =>

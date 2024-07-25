@@ -3,6 +3,12 @@ include: package:flutter_lints/flutter.yaml
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 
+analyzer:
+  exclude:
+    - lib/**.vibe.dart
+    - bin/**.vibe.dart
+    - test/**.vibe.dart
+
 linter:
   rules:
     - prefer_relative_imports

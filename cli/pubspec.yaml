@@ -1,13 +1,13 @@
 name: vibe_cli
 description: A sample command-line application with basic argument parsing.
-version: 0.0.1
+version: 0.0.4
 # repository: https://github.com/my_org/my_repo
 
 environment:
   sdk: ^3.4.4
 
 executables:
-  vibe: main
+  vibe: vibe_cli
 
 # Add regular dependencies here.
 dependencies:

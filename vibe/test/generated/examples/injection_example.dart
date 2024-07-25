@@ -29,7 +29,7 @@ mixin _Derived {
   Stream<int> $streamStreamedCount(Stream<Counter> counter);
 }
 
-class $Derived with EquatableMixin, Viber<$Derived> implements Derived {
+class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
   $Derived(this.container);
 
   static $Derived find(VibeContainer container) =>

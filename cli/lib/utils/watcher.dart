@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:meta/meta.dart';
 
 import 'console.dart';
+import 'path.dart';
 
 abstract class Watcher {
   String get path;
@@ -14,6 +15,7 @@ abstract class Watcher {
 
   @nonVirtual
   Future<void> run() async {
+    info('Run generator');
     final Stream<FileSystemEvent> events =
         Directory(path).watch(recursive: true);
     await for (final FileSystemEvent event in events) {
@@ -43,8 +45,4 @@ abstract class Watcher {
 class VibeFile {
   VibeFile(this.absolutePath);
   final String absolutePath;
-}
-
-extension on String {
-  String get absolutePath => File(this).absolute.path;
 }

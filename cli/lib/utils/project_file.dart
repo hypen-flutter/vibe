@@ -4,9 +4,11 @@ import 'watcher.dart';
 
 bool isProjectFile(VibeFile file) {
   final String relativePath = p.relative(file.absolutePath);
-  return relativePath.startsWith('lib/') ||
+  final bool isInProject = relativePath.startsWith('lib/') ||
       relativePath.startsWith('bin/') ||
       relativePath.startsWith('test/');
+  final bool isNotGeneratedFile = !relativePath.endsWith('.vibe.dart');
+  return isInProject && isNotGeneratedFile;
 }
 
 Future<void> forProjectFiles(VibeFile file, void Function() run) async {

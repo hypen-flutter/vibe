@@ -5,7 +5,7 @@ import 'examples/counter_example.dart';
 import 'examples/injection_example.dart';
 
 int main() {
-  group('Simple Vibe', () {
+  group('Simple Injection', () {
     late $Derived derived;
     late $Counter counter;
     late VibeContainer container;
