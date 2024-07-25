@@ -32,10 +32,10 @@ class Vibe {
 
 /// Mark a constructor to be used as a loadable [Vibe]
 class Loader {
-  const Loader([this.requires = const <dynamic>[]]);
+  const Loader([this.requires = const <Type>[]]);
 
   /// Dependencies needed while load a data
-  final List<dynamic> requires;
+  final List<Type> requires;
 }
 
 /// Marks a field as not a reactive field.

@@ -5,7 +5,7 @@ class RemoteAPI {}
 @Vibe()
 class User with _User {
   // 로딩에 필요한 다른 vibe 인젝션
-  @Loader(<dynamic>[RemoteAPI])
+  @Loader(<Type>[RemoteAPI])
   User(this.userId);
 
   final int userId;

@@ -67,53 +67,51 @@ class StateWatcher extends Watcher {
     final List<ClassElement> classes =
         element.topLevelElements.whereType<ClassElement>().toList();
 
-    final List<Future<String>> vibers = classes
-        .where((ClassElement e) => vibeAnnotation.hasAnnotationOf(e))
-        .map(generateViberClass)
-        .toList();
+    try {
+      final List<Future<String>> vibers = classes
+          .where((ClassElement e) => vibeAnnotation.hasAnnotationOf(e))
+          .map(generateViberClass)
+          .toList();
 
-    final List<Future<String>> widgetExtensions = classes
-        .where((ClassElement e) =>
-            vibeWidget.isAssignableFrom(e) ||
-            vibeWidgetState.isAssignableFrom(e))
-        .where(withVibeAnnotation.hasAnnotationOf)
-        .map(generateWidgetExtension)
-        .toList();
+      final List<Future<String>> widgetExtensions = classes
+          .where((ClassElement e) =>
+              vibeWidget.isAssignableFrom(e) ||
+              vibeWidgetState.isAssignableFrom(e))
+          .where(withVibeAnnotation.hasAnnotationOf)
+          .map(generateWidgetExtension)
+          .toList();
 
-    if (vibers.isNotEmpty || widgetExtensions.isNotEmpty) {
-      info('Investgating $path');
-    } else {
-      return;
-    }
+      if (vibers.isNotEmpty || widgetExtensions.isNotEmpty) {
+        info('Investgating $path');
+      } else {
+        return;
+      }
 
-    final String basename = p.basename(path);
+      final String basename = p.basename(path);
 
-    final String code =
-        (await Future.wait(<Future<String>>[...vibers, ...widgetExtensions]))
-            .where((String e) => e.isNotEmpty)
-            .join('\n');
+      final String code =
+          (await Future.wait(<Future<String>>[...vibers, ...widgetExtensions]))
+              .where((String e) => e.isNotEmpty)
+              .join('\n');
 
-    final bool hasPart = code.isEmpty ||
-        element.parts.any((PartElement e) {
-          final DirectiveUri uri = e.uri;
-          return (uri as dynamic).relativeUriString.contains(partname);
-        });
-
-    if (!hasPart) {
-      alert('''
-[${p.relative(path)}] must include `part of '$partname';`
+      final bool hasPart = code.isEmpty ||
+          element.parts.any((PartElement e) {
+            final DirectiveUri uri = e.uri;
+            return (uri as dynamic).relativeUriString.contains(partname);
+          });
+      if (!hasPart) {
+        alert('''
+[${p.relative(path)}] must include `part '$partname';`
 ''');
-      return;
-    }
+        return;
+      }
 
-    if (code.isEmpty) {
-      info('''
+      if (code.isEmpty) {
+        info('''
 Does not need generation.
 ''');
-      return;
-    }
-
-    try {
+        return;
+      }
       await File(path.stateFile).writeAsString(DartFormatter().format('''
 // ignore_for_file: cascade_invocations
 part of '$basename';
@@ -121,9 +119,8 @@ part of '$basename';
 $code
 '''));
       info('Generated [$partname]');
-    } on Exception catch (e, stack) {
+    } on Exception catch (e) {
       alert(e.toString());
-      alert(stack.toString());
     }
   }
 
@@ -229,7 +226,8 @@ $viber
           }
           return list!.map((DartObject e) {
             final DartType? type = e.toTypeValue();
-            if (type == null) {
+            if (type == null ||
+                !vibeAnnotation.hasAnnotationOf(type.element!)) {
               throw Exception(
                   '[StreamVibe.sources] must contains [@Vibe] type only.');
             }
@@ -253,7 +251,8 @@ Stream<$type> ${f.name.streamMethod}($dependencies);
           }
           return list!.map((DartObject e) {
             final DartType? type = e.toTypeValue();
-            if (type == null) {
+            if (type == null ||
+                !vibeAnnotation.hasAnnotationOf(type.element!)) {
               throw Exception(
                   '[SelectVibe.sources] must contains [@Vibe] type only.');
             }
@@ -357,6 +356,9 @@ notify();
     final Set<String> dependencies = <String>{};
     for (final FieldElement f in linkedFields) {
       String typename = f.type.toString();
+      if (!vibeAnnotation.hasAnnotationOf(f)) {
+        throw Exception('You can not inject non-[@Vibe()] [$typename]');
+      }
       if (typename.endsWith('?')) {
         typename = typename.substring(0, typename.length - 1);
       }
