@@ -66,7 +66,7 @@ class SelectVibe {
   const SelectVibe(this.sources);
 
   /// List of target [Vibe]s
-  final List<dynamic> sources;
+  final List<Type> sources;
 }
 
 /// Marks a field to continuely watch the other [Vibe] state.
@@ -75,7 +75,7 @@ class StreamVibe {
   const StreamVibe(this.sources);
 
   /// List of target [Vibe]s
-  final List<dynamic> sources;
+  final List<Type> sources;
 }
 
 /// Marks a side effect of other [Vibe]s
@@ -83,4 +83,11 @@ class StreamVibe {
 class VibeEffect {
   const VibeEffect({this.uses});
   final List<Function>? uses;
+}
+
+/// Inject [Vibe] into the widget
+@Target({TargetKind.classType})
+class WithVibe {
+  const WithVibe(this.vibes);
+  final List<Type> vibes;
 }

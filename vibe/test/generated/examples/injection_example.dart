@@ -12,10 +12,10 @@ class Derived with _Derived {
   @LinkVibe()
   late Counter counter;
 
-  @SelectVibe(<dynamic>[Counter])
+  @SelectVibe([Counter])
   late int count;
 
-  @StreamVibe(<dynamic>[Counter])
+  @StreamVibe([Counter])
   late int streamedCount;
 
   @override

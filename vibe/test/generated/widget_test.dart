@@ -6,28 +6,62 @@ import 'examples/widget_example.dart';
 int main() {
   group('VibeWidget example', () {
     testWidgets('can get the dependency', (WidgetTester t) async {
-      await t.pumpWidget(const MaterialApp(
-        key: ValueKey('0'),
-        home: Scaffold(
-          body: WidgetExample(),
-        ),
-      ));
-      await t.pumpAndSettle();
-      expect(find.text('0'), findsOneWidget);
+      await t.runAsync(() async {
+        await t.pumpWidget(const MaterialApp(
+          key: ValueKey('0'),
+          home: Scaffold(
+            body: WidgetExample(),
+          ),
+        ));
+        await t.pumpAndSettle();
+        expect(find.text('0'), findsOneWidget);
+      });
     });
 
     testWidgets('can rebuild on change', (WidgetTester t) async {
-      await t.pumpWidget(const MaterialApp(
-        key: ValueKey('1'),
-        home: Scaffold(
-          body: WidgetExample(),
-        ),
-      ));
-      await t.pumpAndSettle();
-      expect(find.text('0'), findsOneWidget);
-      await t.tap(find.text('increase'));
-      await t.pumpAndSettle();
-      expect(find.text('1'), findsOneWidget);
+      await t.runAsync(() async {
+        await t.pumpWidget(const MaterialApp(
+          key: ValueKey('1'),
+          home: Scaffold(
+            body: WidgetExample(),
+          ),
+        ));
+        await t.pumpAndSettle();
+        expect(find.text('0'), findsOneWidget);
+        await t.tap(find.text('increase'));
+        await t.pumpAndSettle();
+        expect(find.text('1'), findsOneWidget);
+      });
+    });
+  });
+  group('[VibeStatefulWidget] example', () {
+    testWidgets('can get the dependency', (WidgetTester t) async {
+      await t.runAsync(() async {
+        await t.pumpWidget(const MaterialApp(
+          key: ValueKey('0'),
+          home: Scaffold(
+            body: StatefulExample(),
+          ),
+        ));
+        await t.pumpAndSettle();
+        expect(find.text('0'), findsOneWidget);
+      });
+    });
+
+    testWidgets('can rebuild on change', (WidgetTester t) async {
+      await t.runAsync(() async {
+        await t.pumpWidget(const MaterialApp(
+          key: ValueKey('1'),
+          home: Scaffold(
+            body: StatefulExample(),
+          ),
+        ));
+        await t.pumpAndSettle();
+        expect(find.text('0'), findsOneWidget);
+        await t.tap(find.text('increase'));
+        await t.pumpAndSettle();
+        expect(find.text('1'), findsOneWidget);
+      });
     });
   });
   return 0;

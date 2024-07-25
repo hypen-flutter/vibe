@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:vibe/vibe.dart';
 
 import 'counter_example.dart';
+import 'injection_example.dart';
 
+part 'widget_example.vibe.dart';
+
+@WithVibe([Counter, Derived])
 class WidgetExample extends VibeWidget with _WidgetExample {
   const WidgetExample({super.key});
-
-  @LinkVibe()
-  Counter get counter => getCounter();
 
   @override
   Widget build(BuildContext context) => Row(
@@ -23,21 +24,24 @@ class WidgetExample extends VibeWidget with _WidgetExample {
       );
 }
 
-mixin _WidgetExample on VibeWidget {
-  static final Map<dynamic, $Counter> _counter = <dynamic, $Counter>{};
-
-  Counter getCounter() {
-    if (_counter[this] != null) {
-      return _counter[this]!;
-    }
-    _counter[this] = $Counter.find($container);
-    $state.addVibe(_counter[this]!, () {
-      _counter.remove(this);
-    });
-    return _counter[this]!;
-  }
+class StatefulExample extends VibeStatefulWidget {
+  const StatefulExample({super.key});
 
   @override
-  List<Viber Function()> get initializers =>
-      <Viber Function()>[() => getCounter() as Viber];
+  VibeWidgetState<VibeStatefulWidget> createState() => StatefulExampleState();
+}
+
+@WithVibe([Counter, Derived])
+class StatefulExampleState extends VibeWidgetState<StatefulExample>
+    with _StatefulExampleState {
+  @override
+  Widget build(BuildContext context) => Row(
+        children: <Widget>[
+          Text('${counter.count}'),
+          TextButton(
+            onPressed: counter.increase,
+            child: const Text('increase'),
+          ),
+        ],
+      );
 }

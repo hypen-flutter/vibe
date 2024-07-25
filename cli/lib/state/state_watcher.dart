@@ -76,6 +76,7 @@ class StateWatcher extends Watcher {
         .where((ClassElement e) =>
             vibeWidget.isAssignableFrom(e) ||
             vibeWidgetState.isAssignableFrom(e))
+        .where(withVibeAnnotation.hasAnnotationOf)
         .map(generateWidgetExtension)
         .toList();
 
@@ -347,8 +348,6 @@ notify();
   ''';
       }).join('\n');
 
-  Future<String> generateWidgetExtension(ClassElement element) async => '';
-
   String _generateConstructorBody({
     required String className,
     required List<FieldElement> linkedFields,
@@ -482,6 +481,53 @@ $loadDependencies
 $addDependencies
 $zipStream
 return ret!;
+''';
+  }
+
+  Future<String> generateWidgetExtension(ClassElement element) async {
+    final String className = element.name;
+    final InterfaceType superType = element.allSupertypes
+        .where((InterfaceType s) =>
+            s.element.name == 'VibeWidget' ||
+            s.element.name == 'VibeWidgetState')
+        .first;
+    String superTypeName = superType.element.name;
+    if (superTypeName == 'VibeWidgetState') {
+      superTypeName = 'VibeWidgetState<${superType.typeArguments.first}>';
+    }
+    final List<DartType> linkedVibes = withVibeAnnotation
+        .firstAnnotationOf(element)!
+        .getField('vibes')!
+        .toListValue()!
+        .map((DartObject e) => e.toTypeValue()!)
+        .toList();
+
+    final String vibeGetters = linkedVibes.map((DartType type) {
+      final Element element = type.element!;
+      final String typename = type.toString();
+      if (!vibeAnnotation.hasAnnotationOf(element)) {
+        throw Exception('You can not inject non-[@Vibe()] class [$typename]');
+      }
+
+      return '''
+$typename get ${typename.camelCase} => ${typename.vibeClass}.find(\$container);
+''';
+    }).join('\n');
+
+    final String vibers = linkedVibes.map((DartType type) {
+      final String typename = type.toString();
+
+      return '''
+${typename.camelCase} as Viber
+''';
+    }).join(',');
+
+    return '''
+mixin _$className on $superTypeName {
+  $vibeGetters
+  @override
+  List<Viber> get \$vibes => [$vibers];
+}
 ''';
   }
 }

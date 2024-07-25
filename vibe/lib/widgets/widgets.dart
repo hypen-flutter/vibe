@@ -18,7 +18,7 @@ abstract class VibeWidget extends VibeStatefulWidget {
   /// Same as the [StatelessWidget.build]
   Widget build(BuildContext context);
 
-  List<Viber Function()> get initializers => <Viber Function()>[];
+  List<Viber> get $vibes => [];
 
   @nonVirtual
   @override
@@ -30,7 +30,7 @@ abstract class VibeWidget extends VibeStatefulWidget {
 
 class _VibeStatelessWidgetState extends VibeWidgetState<VibeWidget> {
   @override
-  List<Viber Function()> get initializers => widget.initializers;
+  List<Viber> get $vibes => widget.$vibes;
 
   @override
   Widget loader(BuildContext context) => widget.loader(context);
@@ -56,9 +56,10 @@ abstract class VibeStatefulWidget extends StatefulWidget {
 /// [State] for [VibeStatefulWidget]
 abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   final List<StreamSubscription> _subscriptions = <StreamSubscription>[];
-  final List<Viber> _vibers = <Viber>[];
-  final List<void Function()> _onDisposes = <void Function()>[];
-  List<Viber Function()> get initializers => <Viber Function()>[];
+  final List<Viber> _vibes = <Viber>[];
+  List<Viber> get $vibes => <Viber>[];
+  VibeContainer get $container => VibeStatefulElement.getContainer(widget)!;
+  VibeWidgetState get $state => VibeStatefulElement.getState(widget)!;
 
   @override
   void initState() {
@@ -72,9 +73,17 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
     final VibeContainer container = InheritedVibeContainer.of(context);
     if (container != VibeStatefulElement.getContainer(widget)) {
       VibeStatefulElement.setContainer(widget, container);
-      for (final Viber Function() init in initializers) {
-        init();
-      }
+      clearVibes();
+      $vibes.forEach(addVibe);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant T oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget != oldWidget) {
+      VibeStatefulElement.removeState(oldWidget);
+      VibeStatefulElement.setState(widget, this);
     }
   }
 
@@ -87,19 +96,7 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
 
   @override
   void dispose() {
-    for (final StreamSubscription s in _subscriptions) {
-      s.cancel();
-    }
-    _subscriptions.clear();
-    for (final Viber v in _vibers) {
-      v.unref();
-    }
-    _vibers.clear();
-
-    for (final void Function() f in _onDisposes) {
-      f();
-    }
-    _onDisposes.clear();
+    clearVibes();
 
     VibeStatefulElement.removeContainer(widget);
     VibeStatefulElement.removeState(widget);
@@ -108,15 +105,14 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   }
 
   int numReady = 0;
-  bool get ready => numReady == _vibers.length;
+  bool get ready => numReady == _vibes.length;
 
   /// Add the vibe [StreamSubscription]
   ///
   /// Users will never call this.
   @nonVirtual
-  void addVibe(Viber v, void Function() onDispose) {
-    _vibers.add(v..ref());
-    _onDisposes.add(onDispose);
+  void addVibe(Viber v) {
+    _vibes.add(v..ref());
     // Wait for the other dependencies
     v.stream.take(1).listen((_) {
       ++numReady;
@@ -129,6 +125,19 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
         setState(() {});
       }
     }));
+  }
+
+  /// Clears the dependencies
+  void clearVibes() {
+    for (final StreamSubscription s in _subscriptions) {
+      s.cancel();
+    }
+    _subscriptions.clear();
+    for (final Viber v in _vibes) {
+      v.unref();
+    }
+    _vibes.clear();
+    numReady = 0;
   }
 }
 
