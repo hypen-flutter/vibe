@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart' as p;
+import 'package:recase/recase.dart';
 
 import '../type_checker/state_annotations.dart';
 import '../type_checker/widget_classes.dart';
@@ -61,7 +63,6 @@ class StateWatcher extends Watcher {
       return;
     }
     final String partname = p.basename(path.stateFile);
-    element.context.declaredVariables.variableNames.forEach(print);
 
     final List<ClassElement> classes =
         element.topLevelElements.whereType<ClassElement>().toList();
@@ -130,32 +131,58 @@ $code
     final List<FieldElement> vibeFields = fields
         .where((FieldElement e) => !notVibeAnnotation.hasAnnotationOf(e))
         .toList();
-    final String name = element.displayName;
-    final String vibeClassName = name.vibeClass;
+    final List<FieldElement> selectionFields = fields
+        .where((FieldElement e) => selectVibeAnnotation.hasAnnotationOf(e))
+        .toList();
+    final List<FieldElement> streamFields = fields
+        .where((FieldElement e) => streamVibeAnnotation.hasAnnotationOf(e))
+        .toList();
+    final List<FieldElement> linkedFields = fields
+        .where((FieldElement e) => linkVibeAnnotation.hasAnnotationOf(e))
+        .toList();
+    final String className = element.displayName;
+    final String vibeClassName = className.vibeClass;
+
+    final Set<String> generatedMethods = <String>{};
+    for (final FieldElement f in selectionFields) {
+      generatedMethods.add(f.name.selectMethod);
+    }
+
+    for (final FieldElement f in streamFields) {
+      generatedMethods.add(f.name.streamMethod);
+    }
 
     final String mixin = '''
-mixin ${name.vibeMixin} {
+mixin ${className.vibeMixin} {
   void dispose() {}
+  ${_generateSelectVibeMethods(selectionFields)}
+  ${_generateStreamVibeMethods(streamFields)}
 }
 ''';
-
-    final String equatableProps =
-        vibeFields.map((FieldElement e) => e.name).join(', ');
-
-    final Set<String> generatedMethods = <String>{'dispose'};
+    final String constructorBody = (linkedFields.isEmpty &&
+            selectionFields.isEmpty &&
+            streamFields.isEmpty)
+        ? '''
+    ret = $vibeClassName(container)..notify();
+    container.add<$vibeClassName>($className, ret);
+    return ret;
+'''
+        : _generateConstructorBody(
+            className: className,
+            linkedFields: linkedFields,
+            selectionFields: selectionFields,
+            streamFields: streamFields);
 
     final String viber = '''
-class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $name {
+class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $className {
   $vibeClassName(this.container);
 
   factory $vibeClassName.find(VibeContainer container) {
-    $vibeClassName? ret = container.find<$vibeClassName>($name);
+    $vibeClassName? ret = container.find<$vibeClassName>($className);
     if (ret != null) {
       return ret;
     }
-    ret = $vibeClassName(container)..notify();
-    container.add<$vibeClassName>($name, ret);
-    return ret;
+    $constructorBody
   }
 
   @override
@@ -165,12 +192,12 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   bool get autoDispose => true;
 
   @override
-  dynamic get key => $name;
+  dynamic get key => $className;
 
-  $name src = $name();
+  $className src = $className();
 
   @override
-  List<Object?> get props => <Object?>[$equatableProps];
+  List<Object?> get props => <Object?>[${_generateEquatableProps(vibeFields)}];
 
   ${_generateFieldsRedirection(fields)}
 
@@ -189,6 +216,57 @@ $mixin
 $viber
 ''';
   }
+
+  String _generateStreamVibeMethods(List<FieldElement> streamFields) =>
+      streamFields.map((FieldElement f) {
+        final String type = f.type.toString();
+        final String dependencies =
+            streamVibeAnnotation.annotationsOf(f).map((DartObject e) {
+          final List<DartObject>? list = e.getField('sources')?.toListValue();
+          if (list?.isEmpty ?? true) {
+            throw Exception('[StreamVibe] must be provided [sources].');
+          }
+          return list!.map((DartObject e) {
+            final DartType? type = e.toTypeValue();
+            if (type == null) {
+              throw Exception(
+                  '[StreamVibe.sources] must contains [@Vibe] type only.');
+            }
+            final String typeName = type.toString();
+            return 'Stream<$typeName> ${typeName.camelCase}';
+          }).join(',');
+        }).join(',');
+        return '''
+Stream<$type> ${f.name.streamMethod}($dependencies);
+''';
+      }).join('\n');
+
+  String _generateSelectVibeMethods(List<FieldElement> selectionFields) =>
+      selectionFields.map((FieldElement f) {
+        final String type = f.type.toString();
+        final String dependencies =
+            selectVibeAnnotation.annotationsOf(f).map((DartObject e) {
+          final List<DartObject>? list = e.getField('sources')?.toListValue();
+          if (list?.isEmpty ?? true) {
+            throw Exception('[SelectVibe] must be provided [sources].');
+          }
+          return list!.map((DartObject e) {
+            final DartType? type = e.toTypeValue();
+            if (type == null) {
+              throw Exception(
+                  '[SelectVibe.sources] must contains [@Vibe] type only.');
+            }
+            final String typeName = type.toString();
+            return '$typeName ${typeName.camelCase}';
+          }).join(',');
+        }).join(',');
+        return '''
+VibeFutureOr<$type> ${f.name.selectMethod}($dependencies);
+''';
+      }).join('\n');
+
+  String _generateEquatableProps(List<FieldElement> elements) =>
+      elements.map((FieldElement e) => e.name).join(', ');
 
   String _generateFieldsRedirection(List<FieldElement> fields) =>
       fields.map((FieldElement e) {
@@ -214,7 +292,7 @@ notify();
           ClassElement element, Set<String> generatedMethods) =>
       element.methods
           .toList()
-          .where((MethodElement m) => !generatedMethods.contains(m.name))
+          .where((MethodElement m) => m.name != 'dispose')
           .map((MethodElement m) {
         final String name = m.name;
         final Iterable<ParameterElement> positionals =
@@ -240,7 +318,7 @@ notify();
 
         final String returning = returnType is VoidType ? '' : 'return ret;';
 
-        final String notify = isFutureFunction
+        String notify = isFutureFunction
             ? '''
   ret.then((_) => notify());
   '''
@@ -255,6 +333,9 @@ notify();
                 : '''
   notify();
   ''';
+        if (generatedMethods.contains(name)) {
+          notify = '';
+        }
 
         return '''
   @override
@@ -267,4 +348,140 @@ notify();
       }).join('\n');
 
   Future<String> generateWidgetExtension(ClassElement element) async => '';
+
+  String _generateConstructorBody({
+    required String className,
+    required List<FieldElement> linkedFields,
+    required List<FieldElement> selectionFields,
+    required List<FieldElement> streamFields,
+  }) {
+    final Set<String> dependencies = <String>{};
+    for (final FieldElement f in linkedFields) {
+      String typename = f.type.toString();
+      if (typename.endsWith('?')) {
+        typename = typename.substring(0, typename.length - 1);
+      }
+      dependencies.add(typename);
+    }
+
+    for (final FieldElement f in selectionFields) {
+      final DartObject annotation = selectVibeAnnotation.firstAnnotationOf(f)!;
+      annotation
+          .getField('sources')!
+          .toListValue()!
+          .map((DartObject o) => o.toTypeValue())
+          .map((DartType? t) => t.toString())
+          .forEach(dependencies.add);
+    }
+
+    for (final FieldElement f in streamFields) {
+      final DartObject annotation = streamVibeAnnotation.firstAnnotationOf(f)!;
+      annotation
+          .getField('sources')!
+          .toListValue()!
+          .map((DartObject o) => o.toTypeValue())
+          .map((DartType? t) => t.toString())
+          .forEach(dependencies.add);
+    }
+
+    final String loadDependencies = dependencies.map((String d) => '''
+final ${d.vibeClass} ${d.camelCase} = ${d.vibeClass}.find(container);
+''').join('\n');
+
+    final String addDependencies = '${(dependencies.map((String name) => '''
+addDependency(${name.camelCase})
+''').toList()..insert(
+        0,
+        'ret = \$$className(container)',
+      )).join('..')};';
+
+    final String assignLinks = linkedFields.map((FieldElement f) {
+      final String name = f.name;
+      String typename = f.type.toString();
+      if (typename.endsWith('?')) {
+        typename = typename.substring(0, typename.length - 1);
+      }
+      final String loadedName = typename.camelCase;
+      return '''
+ret!.src.$name = $loadedName;
+ret!.addSubscription(
+  $loadedName.stream.skip(1).listen(
+    (\$$typename $name) => ret!.$name = $name
+  )
+);
+''';
+    }).join('\n');
+
+    final String linkedStreams = linkedFields.map((FieldElement f) {
+      final String name = f.name;
+      return '''
+$name.stream
+''';
+    }).join(',');
+
+    final String assignSelection = selectionFields.map((FieldElement f) {
+      final String name = f.name;
+      final DartObject annotation = selectVibeAnnotation.firstAnnotationOf(f)!;
+      final List<String> dependencies = annotation
+          .getField('sources')!
+          .toListValue()!
+          .map((DartObject o) => o.toTypeValue())
+          .map((DartType? t) => t.toString())
+          .map((String name) => name.camelCase)
+          .toList();
+
+      return '''
+ret!.src.$name = await ret!.${name.selectMethod}(${dependencies.join(',')});
+ret!.addSubscription(
+  ZipStream([${dependencies.map((String d) => '$d.stream')}], (_) => _).skip(1)
+    .asyncMap((_) => ret!.${name.selectMethod}(${dependencies.join(',')}))
+    .distinct()
+    .listen((e) => ret!.$name = e)
+);
+''';
+    }).join('\n');
+
+    final String assignStreamed = streamFields.map((FieldElement f) {
+      final String name = f.name;
+      final DartObject annotation = streamVibeAnnotation.firstAnnotationOf(f)!;
+      final String dependencies = annotation
+          .getField('sources')!
+          .toListValue()!
+          .map((DartObject o) => o.toTypeValue())
+          .map((DartType? t) => t.toString())
+          .map((String name) => name.camelCase)
+          .map((String name) => '$name.stream')
+          .join(', ');
+
+      return '''
+final streamed${name.pascalCase} = ret!.${name.streamMethod}($dependencies);
+ret!.src.$name = await streamed${name.pascalCase}.first;
+ret!.addSubscription(
+  streamed${name.pascalCase}.skip(1).listen(
+    (e) => ret!.$name = e
+  )
+);
+''';
+    }).join('\n');
+
+    final String zipStream = '''
+ZipStream(<Stream<dynamic>>[$linkedStreams], (List<dynamic> zs) => zs)
+  .first
+  .then(
+    (List<dynamic> _) async {
+      $assignLinks
+      $assignSelection
+      $assignStreamed
+
+      ret!.notify();
+    }
+  );
+''';
+    return '''
+$loadDependencies
+$addDependencies
+$zipStream
+return ret!;
+''';
+  }
 }

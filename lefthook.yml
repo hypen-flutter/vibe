@@ -3,29 +3,21 @@ pre-commit:
   commands:
     1_lint:
       glob: "*.dart"
+      exclude:
+        - "*.vibe.dart"
       run: |
         dart fix --apply
-        # pids=""
-        # for FILE in {staged_files}
-        # do
-        #   dart fix --apply "${FILE}" &
-        #   pid=$!
-        #   pids+=" ${pid}"
-        # done
-        # for pid in $pids
-        # do
-        #   if ! wait "$pid"
-        #   then
-        #     exit 1
-        #   fi
-        # done
       stage_fixed: true
     2_format:
       glob: "*.dart"
+      exclude:
+        - "*.vibe.dart"
       run: dart format {staged_files}
       stage_fixed: true
     3_analyze:
       glob: "*.dart"
+      exclude:
+        - "*.vibe.dart"
       run: dart analyze {staged_files}
 
 pre-push:

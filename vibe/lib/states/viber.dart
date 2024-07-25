@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/subjects.dart';
@@ -7,11 +9,13 @@ import 'equals.dart';
 
 mixin Viber<T> on EquatableMixin {
   final subject = BehaviorSubject<List>();
-  final List<Viber> _dependencies = [];
+  final Set<Viber> _dependencies = {};
   late final stream = subject
       .where((_) => _refCount != 0)
       .distinct(deepEquals)
       .map<T>((event) => this as T);
+
+  final List<StreamSubscription> subscriptions = [];
 
   bool get autoDispose;
   VibeContainer get container;
@@ -40,7 +44,14 @@ mixin Viber<T> on EquatableMixin {
 
   @nonVirtual
   void addDependency(Viber v) {
+    if (_dependencies.contains(v)) {
+      return;
+    }
     _dependencies.add(v..ref());
+  }
+
+  void addSubscription(StreamSubscription sub) {
+    subscriptions.add(sub);
   }
 
   @mustCallSuper
@@ -49,6 +60,11 @@ mixin Viber<T> on EquatableMixin {
       d.unref();
     }
     _dependencies.clear();
+    for (final sub in subscriptions) {
+      sub.cancel();
+    }
+    subscriptions.clear();
     container.remove(key);
+    subject.close();
   }
 }

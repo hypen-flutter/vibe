@@ -1,5 +1,7 @@
 library vibe;
 
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 
 export 'annotations/state_annotations.dart';
@@ -10,3 +12,4 @@ export 'states/viber.dart';
 export 'widgets/widgets.dart';
 
 typedef VibeEquatableMixin = EquatableMixin;
+typedef VibeFutureOr<T> = FutureOr<T>;

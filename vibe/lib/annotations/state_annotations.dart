@@ -63,19 +63,19 @@ class LinkVibe {
 
 /// Marks a field to selectively watch the other [Vibe] state.
 class SelectVibe {
-  const SelectVibe(this.targets);
+  const SelectVibe(this.sources);
 
   /// List of target [Vibe]s
-  final List<dynamic> targets;
+  final List<dynamic> sources;
 }
 
 /// Marks a field to continuely watch the other [Vibe] state.
 @Target(<TargetKind>{TargetKind.field})
 class StreamVibe {
-  const StreamVibe(this.targets);
+  const StreamVibe(this.sources);
 
   /// List of target [Vibe]s
-  final List<dynamic> targets;
+  final List<dynamic> sources;
 }
 
 /// Marks a side effect of other [Vibe]s

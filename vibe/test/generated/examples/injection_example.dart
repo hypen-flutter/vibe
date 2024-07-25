@@ -5,6 +5,8 @@ import 'package:vibe/vibe.dart';
 
 import 'counter_example.dart';
 
+part 'injection_example.vibe.dart';
+
 @Vibe()
 class Derived with _Derived {
   @LinkVibe()
@@ -22,97 +24,4 @@ class Derived with _Derived {
   @override
   Stream<int> $streamStreamedCount(Stream<Counter> counter) =>
       counter.map((Counter c) => c.count).distinct().where((int c) => c.isEven);
-}
-
-mixin _Derived {
-  FutureOr<int> $selectCount(Counter counter);
-  Stream<int> $streamStreamedCount(Stream<Counter> counter);
-}
-
-class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
-  $Derived(this.container);
-
-  static $Derived find(VibeContainer container) =>
-      container.find<$Derived>(Derived) ??
-      container.add<$Derived>(Derived, () {
-        final $Counter counter = $Counter.find(container);
-        final $Derived state = $Derived(container)..addDependency(counter);
-        ZipStream(<Stream<$Counter>>[counter.stream], (List<$Counter> cs) => cs)
-            .first
-            .then(
-          (List<$Counter> value) async {
-            state.src.counter = counter;
-            counter.stream
-                .skip(1)
-                .listen(($Counter counter) => state.counter = counter);
-
-            state.src.count = await state.$selectCount(counter);
-            counter.stream
-                .skip(1)
-                .asyncMap(state.$selectCount)
-                .distinct()
-                .listen((int e) {
-              state.count = e;
-            });
-
-            final Stream<int> streamedCountStream =
-                state.$streamStreamedCount(counter.stream);
-            state.src.streamedCount = await streamedCountStream.first;
-            streamedCountStream.skip(1).listen((int event) {
-              state.streamedCount = event;
-            });
-
-            state.notify();
-          },
-        );
-        return state;
-      }());
-
-  @override
-  final VibeContainer container;
-
-  @override
-  bool get autoDispose => true;
-
-  @override
-  dynamic get key => Derived;
-
-  final Derived src = Derived();
-
-  @override
-  List<Object?> get props => <Object?>[counter, count, streamedCount];
-
-  @override
-  int get count => src.count;
-
-  @override
-  set count(int val) {
-    src.count = val;
-    notify();
-  }
-
-  @override
-  Counter get counter => src.counter;
-
-  @override
-  int get streamedCount => src.streamedCount;
-
-  @override
-  set streamedCount(int val) {
-    src.streamedCount = val;
-    notify();
-  }
-
-  @override
-  Future<int> $selectCount(Counter counter) => src.$selectCount(counter);
-
-  @override
-  Stream<int> $streamStreamedCount(Stream<Counter> counter) =>
-      src.$streamStreamedCount(counter);
-
-  @override
-  set counter(Counter counter) {
-    src.counter = counter;
-    notify();
-  }
 }
