@@ -5,17 +5,28 @@ mixin _Counter {
   void dispose() {}
 }
 
+extension CounterToVibe on Counter {
+  $Counter Function(VibeContainer container) toVibe() =>
+      (VibeContainer container) =>
+          $Counter.find(container, src: this, overrides: true);
+}
+
 class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
   $Counter(this.container);
 
-  factory $Counter.find(VibeContainer container) {
+  factory $Counter.find(VibeContainer container,
+      {Counter? src, bool overrides = false}) {
     $Counter? ret = container.find<$Counter>(Counter);
-    if (ret != null) {
+    if (ret != null && !overrides) {
       return ret;
     }
     ret = $Counter(container)..notify();
-    container.add<$Counter>(Counter, ret);
-    return ret;
+
+    container.add<$Counter>(Counter, ret, overrides: overrides);
+    if (src != null) {
+      ret.src = src;
+    }
+    return ret!;
   }
 
   @override

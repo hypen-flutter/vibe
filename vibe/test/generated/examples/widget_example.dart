@@ -2,20 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:vibe/vibe.dart';
 
 import 'counter_example.dart';
-import 'injection_example.dart';
 
 part 'widget_example.vibe.dart';
 
-@WithVibe([Counter, Derived])
+@WithVibe([
+  Counter,
+])
 class WidgetExample extends VibeWidget with _WidgetExample {
-  const WidgetExample({super.key});
+  const WidgetExample({
+    this.suffix = '',
+    super.key,
+  });
+
+  final String suffix;
 
   @override
   Widget build(BuildContext context) => Row(
         children: <Widget>[
-          Text('${counter.count}'),
+          Text('${counter.count}$suffix'),
           TextButton(
-            child: const Text('increase'),
+            child: Text('increase$suffix'),
             onPressed: () {
               counter.increase();
             },
@@ -31,7 +37,9 @@ class StatefulExample extends VibeStatefulWidget {
   VibeWidgetState<VibeStatefulWidget> createState() => StatefulExampleState();
 }
 
-@WithVibe([Counter, Derived])
+@WithVibe([
+  Counter,
+])
 class StatefulExampleState extends VibeWidgetState<StatefulExample>
     with _StatefulExampleState {
   @override

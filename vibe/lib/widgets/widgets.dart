@@ -114,12 +114,16 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   void addVibe(Viber v) {
     _vibes.add(v..ref());
     // Wait for the other dependencies
-    v.stream.take(1).listen((_) {
+    if (v.subject.valueOrNull == null) {
+      v.stream.take(1).listen((_) {
+        ++numReady;
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } else {
       ++numReady;
-      if (mounted) {
-        setState(() {});
-      }
-    });
+    }
     _subscriptions.add(v.stream.skip(1).listen((_) {
       if (mounted) {
         setState(() {});
@@ -186,17 +190,43 @@ class VibeStatefulElement extends StatefulElement {
 
 /// [VibeContainer] holder
 class VibeScope extends VibeStatefulWidget {
-  const VibeScope({required this.child, super.key});
+  const VibeScope({
+    required this.child,
+    this.overrides = const [],
+    super.key,
+  });
 
   /// Child widget
   final Widget child;
+
+  /// Overrides the [Vibe] classes
+  final List<Viber Function(VibeContainer)> overrides;
 
   @override
   VibeWidgetState<VibeStatefulWidget> createState() => _VibeScopeState();
 }
 
 class _VibeScopeState extends VibeWidgetState<VibeScope> {
-  final VibeContainer container = VibeContainer();
+  late final VibeContainer container =
+      VibeContainer(parent: InheritedVibeContainer.of(context));
+
+  @override
+  void initState() {
+    super.initState();
+    for (final override in widget.overrides) {
+      override(container);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final currentParent = InheritedVibeContainer.of(context);
+    if (container.parent != currentParent) {
+      container.parent = currentParent;
+    }
+  }
+
   @override
   Widget build(BuildContext context) => InheritedVibeContainer(
         container: container,

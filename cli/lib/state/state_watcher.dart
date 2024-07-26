@@ -149,6 +149,12 @@ $code
     for (final FieldElement f in streamFields) {
       generatedMethods.add(f.name.streamMethod);
     }
+    final String extension = '''
+extension ${className}ToVibe on $className {
+  $vibeClassName Function(VibeContainer container) toVibe() =>
+      (VibeContainer container) => $vibeClassName.find(container, src: this, overrides: true);
+}
+''';
 
     final String mixin = '''
 mixin ${className.vibeMixin} {
@@ -162,8 +168,6 @@ mixin ${className.vibeMixin} {
             streamFields.isEmpty)
         ? '''
     ret = $vibeClassName(container)..notify();
-    container.add<$vibeClassName>($className, ret);
-    return ret;
 '''
         : _generateConstructorBody(
             className: className,
@@ -175,12 +179,17 @@ mixin ${className.vibeMixin} {
 class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $className {
   $vibeClassName(this.container);
 
-  factory $vibeClassName.find(VibeContainer container) {
+  factory $vibeClassName.find(VibeContainer container, {$className? src, bool overrides = false}) {
     $vibeClassName? ret = container.find<$vibeClassName>($className);
-    if (ret != null) {
+    if (ret != null && !overrides) {
       return ret;
     }
     $constructorBody
+    container.add<$vibeClassName>($className, ret, overrides: overrides);
+    if (src != null) {
+      ret.src = src;
+    }
+    return ret!;
   }
 
   @override
@@ -210,6 +219,8 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
 ''';
     return '''
 $mixin
+
+$extension
 
 $viber
 ''';
@@ -356,8 +367,9 @@ notify();
     final Set<String> dependencies = <String>{};
     for (final FieldElement f in linkedFields) {
       String typename = f.type.toString();
-      if (!vibeAnnotation.hasAnnotationOf(f)) {
-        throw Exception('You can not inject non-[@Vibe()] [$typename]');
+      if (!vibeAnnotation.hasAnnotationOf(f.type.element!)) {
+        throw Exception(
+            'You can not inject non-[@Vibe()] [$typename] on [LinkVibe]');
       }
       if (typename.endsWith('?')) {
         typename = typename.substring(0, typename.length - 1);
@@ -482,7 +494,6 @@ ZipStream(<Stream<dynamic>>[$linkedStreams], (List<dynamic> zs) => zs)
 $loadDependencies
 $addDependencies
 $zipStream
-return ret!;
 ''';
   }
 
@@ -508,9 +519,9 @@ return ret!;
       final Element element = type.element!;
       final String typename = type.toString();
       if (!vibeAnnotation.hasAnnotationOf(element)) {
-        throw Exception('You can not inject non-[@Vibe()] class [$typename]');
+        throw Exception(
+            'You can not inject non-[@Vibe()] [$typename] on [WithVibe]');
       }
-
       return '''
 $typename get ${typename.camelCase} => ${typename.vibeClass}.find(\$container);
 ''';

@@ -4,24 +4,31 @@ class RemoteAPI {}
 
 @Vibe()
 class User with _User {
+  User(this.userId, this.name);
   // 로딩에 필요한 다른 vibe 인젝션
   @Loader(<Type>[RemoteAPI])
-  User(this.userId);
+  User.fromRemote(this.userId);
 
-  final int userId;
+  @Loader(<Type>[RemoteAPI])
+  User.created(this.name);
 
-  int count = 0;
+  late final int userId;
+
+  late final String name;
 
   @override
-  Future<void> $loadNewUser(int userId, RemoteAPI api) async {
-    return;
+  Future<User> $userFromRemote(int userId, RemoteAPI api) async =>
+      User(userId, 'name');
 
-    // remote 에서 데이터를 채우는 작업
+  @override
+  Future<User> $userCreated(String name, RemoteAPI api) {
+    throw UnimplementedError();
   }
 }
 
 mixin _User {
-  Future<void> $loadNewUser(int userId, RemoteAPI api);
+  Future<User> $userFromRemote(int userId, RemoteAPI api);
+  Future<User> $userCreated(String name, RemoteAPI api);
 }
 
 class $UserKey with VibeEquatableMixin {
@@ -39,14 +46,16 @@ extension CreateUserKey on User {
 
 class $User with VibeEquatableMixin, Viber<$User> implements User {
   $User(this.container);
-  static $User findUserNew(VibeContainer container, int userId) {
+  static $User findUserFromRemote(VibeContainer container, int userId) {
     final $UserKey key = $UserKey(userId);
     return container.find<$User>(key) ??
         container.add<$User>(key, () {
           final $User ret = $User(container);
-          final User src = ret.src = User(userId);
-          final RemoteAPI api = RemoteAPI(); // 원래는 $RemoteAPI.find(container);
-          src.$loadNewUser(userId, api).then((_) {
+          final User src = ret.src = User.fromRemote(userId);
+          // 원래는 $RemoteAPI.find(container);
+          // one-time use 니까 ref 하지 않아도 됨.
+          final RemoteAPI api = RemoteAPI();
+          src.$userFromRemote(userId, api).then((_) {
             ret.notify();
           });
           return ret;
@@ -67,17 +76,28 @@ class $User with VibeEquatableMixin, Viber<$User> implements User {
   List<Object?> get props => <Object?>[userId];
 
   @override
-  Future<void> $loadNewUser(int userId, RemoteAPI api) =>
-      src.$loadNewUser(userId, api);
+  Future<User> $userFromRemote(int userId, RemoteAPI api) =>
+      src.$userFromRemote(userId, api);
+
+  @override
+  Future<User> $userCreated(String name, RemoteAPI api) {
+    throw UnimplementedError();
+  }
 
   @override
   int get userId => src.userId;
 
   @override
-  int get count => src.count;
+  set userId(int val) {
+    src.userId = val;
+    notify();
+  }
+
   @override
-  set count(int val) {
-    src.count = val;
+  String get name => src.name;
+  @override
+  set name(String val) {
+    src.name = val;
     notify();
   }
 }
@@ -85,12 +105,12 @@ class $User with VibeEquatableMixin, Viber<$User> implements User {
 @Vibe()
 class Usecase with _Usecase {
   Usecase();
-  @LinkVibe(use: User.new)
-  User loadUser(int userId) => userNew(userId);
+  @LinkVibe(use: User.fromRemote)
+  User user(int userId) => userFromRemote(userId);
 }
 
 mixin _Usecase {
-  late final User Function(int userId) userNew;
+  late final User Function(int userId) userFromRemote;
 }
 
 class $Usecase with VibeEquatableMixin, Viber<$Usecase> implements Usecase {
@@ -100,7 +120,11 @@ class $Usecase with VibeEquatableMixin, Viber<$Usecase> implements Usecase {
       container.find<$Usecase>(Usecase) ??
       container.add<$Usecase>(Usecase, () {
         final $Usecase ret = $Usecase(container);
-        ret.src.userNew = (int userId) => $User.findUserNew(container, userId);
+        ret.src.userFromRemote = (int userId) {
+          final r = $User.findUserFromRemote(container, userId);
+          ret.addDependency(r);
+          return r;
+        };
         ret.notify();
         return ret;
       }());
@@ -120,13 +144,13 @@ class $Usecase with VibeEquatableMixin, Viber<$Usecase> implements Usecase {
   final Usecase src = Usecase();
 
   @override
-  User Function(int userId) get userNew => src.userNew;
+  User Function(int userId) get userFromRemote => src.userFromRemote;
 
   @override
-  User loadUser(int userId) => src.loadUser(userId);
+  User user(int userId) => src.user(userId);
 
   @override
-  set userNew(User Function(int userId) val) {
-    src.userNew = val;
+  set userFromRemote(User Function(int userId) val) {
+    src.userFromRemote = val;
   }
 }

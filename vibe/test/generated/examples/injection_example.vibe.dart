@@ -8,12 +8,19 @@ mixin _Derived {
   Stream<int> $streamStreamedCount(Stream<Counter> counter);
 }
 
+extension DerivedToVibe on Derived {
+  $Derived Function(VibeContainer container) toVibe() =>
+      (VibeContainer container) =>
+          $Derived.find(container, src: this, overrides: true);
+}
+
 class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
   $Derived(this.container);
 
-  factory $Derived.find(VibeContainer container) {
+  factory $Derived.find(VibeContainer container,
+      {Derived? src, bool overrides = false}) {
     $Derived? ret = container.find<$Derived>(Derived);
-    if (ret != null) {
+    if (ret != null && !overrides) {
       return ret;
     }
     final $Counter counter = $Counter.find(container);
@@ -23,25 +30,29 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
         .first
         .then((List<dynamic> _) async {
       ret!.src.counter = counter;
-      ret.addSubscription(counter.stream
+      ret!.addSubscription(counter.stream
           .skip(1)
           .listen(($Counter counter) => ret!.counter = counter));
 
-      ret.src.count = await ret.$selectCount(counter);
-      ret.addSubscription(ZipStream([(counter.stream)], (_) => _)
+      ret!.src.count = await ret!.$selectCount(counter);
+      ret!.addSubscription(ZipStream([(counter.stream)], (_) => _)
           .skip(1)
           .asyncMap((_) => ret!.$selectCount(counter))
           .distinct()
           .listen((e) => ret!.count = e));
 
-      final streamedStreamedCount = ret.$streamStreamedCount(counter.stream);
-      ret.src.streamedCount = await streamedStreamedCount.first;
-      ret.addSubscription(
+      final streamedStreamedCount = ret!.$streamStreamedCount(counter.stream);
+      ret!.src.streamedCount = await streamedStreamedCount.first;
+      ret!.addSubscription(
           streamedStreamedCount.skip(1).listen((e) => ret!.streamedCount = e));
 
-      ret.notify();
+      ret!.notify();
     });
 
+    container.add<$Derived>(Derived, ret, overrides: overrides);
+    if (src != null) {
+      ret.src = src;
+    }
     return ret!;
   }
 
