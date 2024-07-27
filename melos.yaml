@@ -1,0 +1,5 @@
+name: vibe_framework
+
+packages:
+  - vibe/
+  - cli/
