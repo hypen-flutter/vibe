@@ -286,6 +286,30 @@ VibeFutureOr<$type> ${f.name.selectMethod}($dependencies);
         final String type = e.type.toString();
         final String name = e.name;
         final bool isSetter = e.setter != null;
+        String? wrappedType;
+        if (e.type.isDartCoreList) {
+          wrappedType = 'Vibe$type';
+        } else if (e.type.isDartCoreSet) {
+          wrappedType = 'Vibe$type';
+        } else if (e.type.isDartCoreMap) {
+          wrappedType = 'Vibe$type';
+        }
+        if (wrappedType != null) {
+          return '''
+late $wrappedType _$name = $wrappedType(src.$name, () => notify(force: true));
+@override
+$type get $name => _$name;
+
+${isSetter ? '''
+@override
+set $name($type val) {
+  src.$name = val;
+  _$name = $wrappedType(val, notify);
+  notify();
+}
+''' : ''}
+''';
+        }
         return '''
 @override
 $type get $name => src.$name;

@@ -15,10 +15,10 @@ abstract interface class GeneratedViber<T> {
 mixin Viber<T> on EquatableMixin {
   final subject = BehaviorSubject<List>();
   final Set<Viber> _dependencies = {};
-  late final stream = subject
-      .where((_) => _refCount != 0)
-      .distinct(deepEquals)
-      .map<T>((event) => this as T);
+  late final stream = subject.where((_) => _refCount != 0).distinct((a, b) {
+    final result = deepEquals(a, b);
+    return result;
+  }).map<T>((event) => this as T);
 
   final List<StreamSubscription> subscriptions = [];
 
@@ -43,8 +43,11 @@ mixin Viber<T> on EquatableMixin {
   }
 
   @nonVirtual
-  void notify() {
-    subject.add(props);
+  void notify({bool force = false}) {
+    subject.add([
+      ...props,
+      if (force) DateTime.now() else null,
+    ]);
   }
 
   @nonVirtual
@@ -59,7 +62,7 @@ mixin Viber<T> on EquatableMixin {
     subscriptions.add(sub);
   }
 
-  Future<T> loadVibe<T>(GeneratedViber<T> v) async =>
+  Future<V> loadVibe<V>(GeneratedViber<V> v) async =>
       v.toVibe()(container, override: false);
 
   @mustCallSuper
