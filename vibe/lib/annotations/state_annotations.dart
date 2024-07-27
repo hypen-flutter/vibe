@@ -78,13 +78,6 @@ class StreamVibe {
   final List<Type> sources;
 }
 
-/// Marks a side effect of other [Vibe]s
-@Target(<TargetKind>{TargetKind.classType})
-class VibeEffect {
-  const VibeEffect({this.uses});
-  final List<Function>? uses;
-}
-
 /// Inject [Vibe] into the widget
 @Target({TargetKind.classType})
 class WithVibe {

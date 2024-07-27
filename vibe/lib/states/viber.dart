@@ -7,6 +7,11 @@ import 'package:rxdart/subjects.dart';
 import 'container.dart';
 import 'equals.dart';
 
+abstract interface class GeneratedViber<T> {
+  T Function(VibeContainer container, {bool override}) toVibe();
+  dynamic get $key;
+}
+
 mixin Viber<T> on EquatableMixin {
   final subject = BehaviorSubject<List>();
   final Set<Viber> _dependencies = {};
@@ -19,7 +24,7 @@ mixin Viber<T> on EquatableMixin {
 
   bool get autoDispose;
   VibeContainer get container;
-  dynamic get key;
+  dynamic get $key;
 
   int _refCount = 0;
 
@@ -54,6 +59,9 @@ mixin Viber<T> on EquatableMixin {
     subscriptions.add(sub);
   }
 
+  Future<T> loadVibe<T>(GeneratedViber<T> v) async =>
+      v.toVibe()(container, override: false);
+
   @mustCallSuper
   void dispose() {
     for (final d in _dependencies) {
@@ -64,7 +72,7 @@ mixin Viber<T> on EquatableMixin {
       sub.cancel();
     }
     subscriptions.clear();
-    container.remove(key);
+    container.remove($key);
     subject.close();
   }
 }

@@ -149,25 +149,26 @@ $code
     for (final FieldElement f in streamFields) {
       generatedMethods.add(f.name.streamMethod);
     }
-    final String extension = '''
-extension ${className}ToVibe on $className {
-  $vibeClassName Function(VibeContainer container) toVibe() =>
-      (VibeContainer container) => $vibeClassName.find(container, src: this, overrides: true);
-}
-''';
 
     final String mixin = '''
-mixin ${className.vibeMixin} {
+mixin ${className.vibeMixin} implements GeneratedViber<$vibeClassName> {
+  @override
+  dynamic get \$key => $className;
+
   void dispose() {}
   ${_generateSelectVibeMethods(selectionFields)}
   ${_generateStreamVibeMethods(streamFields)}
+  @override
+  $vibeClassName Function(VibeContainer container, {bool override}) toVibe() =>
+      (VibeContainer container, {bool override = false}) 
+        => $vibeClassName.find(container, src: this as $className, overrides: override);
 }
 ''';
     final String constructorBody = (linkedFields.isEmpty &&
             selectionFields.isEmpty &&
             streamFields.isEmpty)
         ? '''
-    ret = $vibeClassName(container)..notify();
+ret!.notify();
 '''
         : _generateConstructorBody(
             className: className,
@@ -180,15 +181,14 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   $vibeClassName(this.container);
 
   factory $vibeClassName.find(VibeContainer container, {$className? src, bool overrides = false}) {
-    $vibeClassName? ret = container.find<$vibeClassName>($className);
+    src ??= $className();
+    $vibeClassName? ret = container.find<$vibeClassName>(src.\$key);
     if (ret != null && !overrides) {
       return ret;
     }
+    ret = $vibeClassName(container)..src = src;
     $constructorBody
-    container.add<$vibeClassName>($className, ret, overrides: overrides);
-    if (src != null) {
-      ret.src = src;
-    }
+    container.add<$vibeClassName>(src.\$key, ret, overrides: overrides);
     return ret!;
   }
 
@@ -199,9 +199,9 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   bool get autoDispose => true;
 
   @override
-  dynamic get key => $className;
+  dynamic get \$key => src.\$key;
 
-  $className src = $className();
+  late $className src;
 
   @override
   List<Object?> get props => <Object?>[${_generateEquatableProps(vibeFields)}];
@@ -209,6 +209,10 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   ${_generateFieldsRedirection(fields)}
 
   ${_generateMethodsRedirection(element, generatedMethods)}
+
+  @override
+  $vibeClassName Function(VibeContainer container, {bool override}) toVibe() =>
+    src.toVibe();
 
   @override
   void dispose() {
@@ -219,8 +223,6 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
 ''';
     return '''
 $mixin
-
-$extension
 
 $viber
 ''';
@@ -401,12 +403,9 @@ notify();
 final ${d.vibeClass} ${d.camelCase} = ${d.vibeClass}.find(container);
 ''').join('\n');
 
-    final String addDependencies = '${(dependencies.map((String name) => '''
+    final String addDependencies = '${dependencies.map((String name) => '''
 addDependency(${name.camelCase})
-''').toList()..insert(
-        0,
-        'ret = \$$className(container)',
-      )).join('..')};';
+''').toList().join('..')};';
 
     final String assignLinks = linkedFields.map((FieldElement f) {
       final String name = f.name;
@@ -492,6 +491,7 @@ ZipStream(<Stream<dynamic>>[$linkedStreams], (List<dynamic> zs) => zs)
 ''';
     return '''
 $loadDependencies
+ret..
 $addDependencies
 $zipStream
 ''';

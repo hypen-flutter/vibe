@@ -200,7 +200,8 @@ class VibeScope extends VibeStatefulWidget {
   final Widget child;
 
   /// Overrides the [Vibe] classes
-  final List<Viber Function(VibeContainer)> overrides;
+  final List<Viber Function(VibeContainer container, {bool override})>
+      overrides;
 
   @override
   VibeWidgetState<VibeStatefulWidget> createState() => _VibeScopeState();
@@ -214,7 +215,7 @@ class _VibeScopeState extends VibeWidgetState<VibeScope> {
   void initState() {
     super.initState();
     for (final override in widget.overrides) {
-      override(container);
+      override(container, override: true);
     }
   }
 

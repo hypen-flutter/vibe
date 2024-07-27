@@ -2,6 +2,13 @@
 import 'container.dart';
 
 // ignore: one_member_abstracts
-abstract interface class GeneratedVibeEffect {
-  GeneratedVibeEffect toVibeEffect(VibeContainer container);
+
+abstract class VibeEffect {
+  late final VibeContainer container;
+
+  void init() {}
+
+  void addLoaderKey(dynamic key) {}
+
+  void addEffectKey(dynamic key) {}
 }

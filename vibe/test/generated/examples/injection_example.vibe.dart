@@ -1,17 +1,19 @@
 // ignore_for_file: cascade_invocations
 part of 'injection_example.dart';
 
-mixin _Derived {
+mixin _Derived implements GeneratedViber<$Derived> {
+  @override
+  dynamic get $key => Derived;
+
   void dispose() {}
   VibeFutureOr<int> $selectCount(Counter counter);
 
   Stream<int> $streamStreamedCount(Stream<Counter> counter);
-}
 
-extension DerivedToVibe on Derived {
-  $Derived Function(VibeContainer container) toVibe() =>
-      (VibeContainer container) =>
-          $Derived.find(container, src: this, overrides: true);
+  @override
+  $Derived Function(VibeContainer container, {bool override}) toVibe() =>
+      (VibeContainer container, {bool override = false}) =>
+          $Derived.find(container, src: this as Derived, overrides: override);
 }
 
 class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
@@ -19,13 +21,15 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
 
   factory $Derived.find(VibeContainer container,
       {Derived? src, bool overrides = false}) {
-    $Derived? ret = container.find<$Derived>(Derived);
+    src ??= Derived();
+    $Derived? ret = container.find<$Derived>(src.$key);
     if (ret != null && !overrides) {
       return ret;
     }
+    ret = $Derived(container)..src = src;
     final $Counter counter = $Counter.find(container);
 
-    ret = $Derived(container)..addDependency(counter);
+    ret..addDependency(counter);
     ZipStream(<Stream<dynamic>>[counter.stream], (List<dynamic> zs) => zs)
         .first
         .then((List<dynamic> _) async {
@@ -49,10 +53,7 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
       ret!.notify();
     });
 
-    container.add<$Derived>(Derived, ret, overrides: overrides);
-    if (src != null) {
-      ret.src = src;
-    }
+    container.add<$Derived>(src.$key, ret, overrides: overrides);
     return ret!;
   }
 
@@ -63,9 +64,9 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
   bool get autoDispose => true;
 
   @override
-  dynamic get key => Derived;
+  dynamic get $key => src.$key;
 
-  Derived src = Derived();
+  late Derived src;
 
   @override
   List<Object?> get props => <Object?>[counter, count, streamedCount];
@@ -110,6 +111,10 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
 
     return ret;
   }
+
+  @override
+  $Derived Function(VibeContainer container, {bool override}) toVibe() =>
+      src.toVibe();
 
   @override
   void dispose() {

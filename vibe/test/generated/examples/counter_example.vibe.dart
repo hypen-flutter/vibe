@@ -1,14 +1,16 @@
 // ignore_for_file: cascade_invocations
 part of 'counter_example.dart';
 
-mixin _Counter {
-  void dispose() {}
-}
+mixin _Counter implements GeneratedViber<$Counter> {
+  @override
+  dynamic get $key => Counter;
 
-extension CounterToVibe on Counter {
-  $Counter Function(VibeContainer container) toVibe() =>
-      (VibeContainer container) =>
-          $Counter.find(container, src: this, overrides: true);
+  void dispose() {}
+
+  @override
+  $Counter Function(VibeContainer container, {bool override}) toVibe() =>
+      (VibeContainer container, {bool override = false}) =>
+          $Counter.find(container, src: this as Counter, overrides: override);
 }
 
 class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
@@ -16,16 +18,15 @@ class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
 
   factory $Counter.find(VibeContainer container,
       {Counter? src, bool overrides = false}) {
-    $Counter? ret = container.find<$Counter>(Counter);
+    src ??= Counter();
+    $Counter? ret = container.find<$Counter>(src.$key);
     if (ret != null && !overrides) {
       return ret;
     }
-    ret = $Counter(container)..notify();
+    ret = $Counter(container)..src = src;
+    ret!.notify();
 
-    container.add<$Counter>(Counter, ret, overrides: overrides);
-    if (src != null) {
-      ret.src = src;
-    }
+    container.add<$Counter>(src.$key, ret, overrides: overrides);
     return ret!;
   }
 
@@ -36,9 +37,9 @@ class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
   bool get autoDispose => true;
 
   @override
-  dynamic get key => Counter;
+  dynamic get $key => src.$key;
 
-  Counter src = Counter();
+  late Counter src;
 
   @override
   List<Object?> get props => <Object?>[count, unmodifiable, forTest];
@@ -105,6 +106,10 @@ class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
 
     return ret;
   }
+
+  @override
+  $Counter Function(VibeContainer container, {bool override}) toVibe() =>
+      src.toVibe();
 
   @override
   void dispose() {
