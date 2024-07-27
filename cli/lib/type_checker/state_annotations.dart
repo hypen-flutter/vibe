@@ -15,3 +15,9 @@ const TypeChecker vibeEffectAnnotation = TypeChecker.fromUrl(
     'package:vibe/annotations/state_annotations.dart#VibeEffect');
 const TypeChecker withVibeAnnotation = TypeChecker.fromUrl(
     'package:vibe/annotations/state_annotations.dart#WithVibe');
+
+const TypeChecker computedAnnotation = TypeChecker.fromUrl(
+    'package:vibe/annotations/state_annotations.dart#Computed');
+
+const TypeChecker linkComputedAnnotation = TypeChecker.fromUrl(
+    'package:vibe/annotations/state_annotations.dart#LinkComputed');

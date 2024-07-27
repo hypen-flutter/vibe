@@ -19,23 +19,16 @@ const LinkVibe link = LinkVibe();
 })
 class Vibe {
   const Vibe({
-    this.name,
     this.autoDispose = true,
   });
-
-  /// Indicates an alternative name of this [Vibe]
-  final Symbol? name;
 
   /// Wheter disposing the state automatically
   final bool autoDispose;
 }
 
-/// Mark a constructor to be used as a loadable [Vibe]
-class Loader {
-  const Loader([this.requires = const <Type>[]]);
-
-  /// Dependencies needed while load a data
-  final List<Type> requires;
+/// Marks a computable [Vibe]
+class Computed {
+  const Computed();
 }
 
 /// Marks a field as not a reactive field.
@@ -59,6 +52,18 @@ class LinkVibe {
 
   /// Constructors to be used
   final Function? use;
+}
+
+/// Marks a field to connect it to the other [Computed] state.
+@Target(<TargetKind>{
+  TargetKind.field,
+  TargetKind.getter,
+  TargetKind.setter,
+  TargetKind.method
+})
+class LinkComputed {
+  /// Default constructor
+  const LinkComputed();
 }
 
 /// Marks a field to selectively watch the other [Vibe] state.

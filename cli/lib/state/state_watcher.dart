@@ -177,7 +177,7 @@ mixin ${className.vibeMixin} implements GeneratedViber<$vibeClassName> {
 ret!.notify();
 '''
         : _generateConstructorBody(
-            className: className,
+            element: element,
             linkedFields: linkedFields,
             selectionFields: selectionFields,
             streamFields: streamFields);
@@ -186,6 +186,16 @@ ret!.notify();
         .firstAnnotationOf(element)!
         .getField('autoDispose')!
         .toBoolValue()!;
+
+    final String assignComputed = element.fields
+        .where((FieldElement f) => linkComputedAnnotation.hasAnnotationOf(f))
+        .map((FieldElement f) {
+      final String name = f.name;
+      final String type = f.type.getDisplayString().replaceAll('*', '');
+      return '''
+$name = $type(container, ret!)
+''';
+    }).join('..');
 
     final String viber = '''
 class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $className {
@@ -198,6 +208,7 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
       return ret;
     }
     ret = $vibeClassName(container)..src = src;
+    ${assignComputed.isNotEmpty ? 'src..$assignComputed;' : ''}
     $constructorBody
     container.add<$vibeClassName>(src.\$key, ret, overrides: overrides);
     return ret!;
@@ -248,13 +259,154 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
       ...generatedMethods,
       'dispose',
     });
+    final String computedVibe = _generateComputed(element);
+
     return '''
 $mixin
 
 $viber
 
 $effect
+
+$computedVibe
 ''';
+  }
+
+  String _generateComputed(ClassElement element) {
+    final String className = element.name;
+    final List<ConstructorElement> constructors = element.constructors
+        .where((ConstructorElement c) => computedAnnotation.hasAnnotationOf(c))
+        .toList();
+    if (constructors.isEmpty) {
+      return '';
+    }
+
+    return constructors.map((ConstructorElement c) {
+      final String name = c.name.pascalCase;
+      final String srcName = '_$className$name';
+      final String keyName = '${srcName}Key';
+      final String computeName = 'Compute$className$name';
+      final String computedName = '$className$name';
+      final List<ParameterElement> params = c.parameters;
+      final List<ParameterElement> positionals =
+          params.where((ParameterElement p) => p.isPositional).toList();
+      final List<ParameterElement> named =
+          params.where((ParameterElement p) => p.isNamed).toList();
+      final String thisPositionals =
+          positionals.map((ParameterElement p) => 'this.${p.name}').join(',');
+
+      final String thisNamed = named.isNotEmpty
+          ? '{${named.map((ParameterElement p) => 'this.${p.name}').join(',')}}'
+          : '';
+
+      final String thisParams = <String>[thisPositionals, thisNamed]
+          .where((String s) => s.isNotEmpty)
+          .join(',');
+      final String fields = params.map((ParameterElement p) {
+        final String name = p.name;
+        final String override =
+            element.fields.where((FieldElement f) => f.name == name).isNotEmpty
+                ? '@override'
+                : '';
+        final String finalState = override.isEmpty
+            ? 'final'
+            : element.fields
+                    .where((FieldElement f) => f.name == name)
+                    .first
+                    .isFinal
+                ? 'final'
+                : '';
+        return '''
+$override
+$finalState ${p.type} $name;
+''';
+      }).join('\n');
+
+      final String redirectPositionals =
+          positionals.map((ParameterElement p) => p.name).join(',');
+      final String redirectNamed = named.isNotEmpty
+          ? '{${named.map((ParameterElement p) => '${p.name}: ${p.name}').join(',')}}'
+          : '';
+
+      final String redirectParams = <String>[redirectPositionals, redirectNamed]
+          .where((String s) => s.isNotEmpty)
+          .join(',');
+
+      final String privateSrc = '''
+class $srcName extends $className {
+  $srcName($thisParams);
+  $fields
+
+  @override
+  dynamic get \$loaderKey => $srcName;
+
+  @override
+  dynamic get \$key => $keyName($redirectParams);
+}
+''';
+      final String props = params.map((ParameterElement p) => p.name).join(',');
+      final String privateKey = '''
+class $keyName with VibeEquatableMixin {
+  $keyName($thisParams);
+  $fields
+
+  @override
+  List<Object?> get props => [$props];
+}
+''';
+      final String originalPositionals = positionals
+          .map((ParameterElement p) => '${p.type} ${p.name}')
+          .join(',');
+      final String originalNamed = named.isNotEmpty
+          ? '{${named.map(
+                (ParameterElement p) => '${p.type} ${p.name}',
+              ).join(',')}}'
+          : '';
+      final String originalParams = <String>[originalPositionals, originalNamed]
+          .where((String s) => s.isNotEmpty)
+          .join(',');
+      final String computer = '''
+mixin $computeName on VibeEffect {
+  @override
+  void init() {
+    addKey($srcName);
+  }
+
+  Future<$className> compute$computedName($originalParams);
+}
+''';
+      final String computed = '''
+class $computedName extends Computed {
+  $computedName(this.container, this.parent);
+
+  final VibeContainer container;
+  final Viber parent;
+
+  Future<$className> call($originalParams) async {
+    final loader = (container.findEffects($srcName) ?? [])
+        .whereType<$computeName>()
+        .firstOrNull;
+    if (loader == null) {
+      throw Exception('You did not register [$computeName].');
+    }
+
+    final src = await loader.compute$computedName($redirectParams);
+    final ret = ${className.vibeClass}.find(container, src: src);
+    parent.addDependency(ret);
+
+    await ret.stream.first;
+
+    return ret;
+  }
+}
+''';
+      return '''
+$privateSrc
+$privateKey
+$computer
+$computed
+''';
+    }).join('\n');
   }
 
   String _generateEffect(ClassElement element, Set<String> except) {
@@ -337,7 +489,7 @@ VibeFutureOr<$type> ${f.name.selectMethod}($dependencies);
 
   String _generateFieldsRedirection(List<FieldElement> fields) =>
       fields.map((FieldElement e) {
-        final String type = e.type.toString();
+        final String type = e.type.getDisplayString().replaceAll('*', '');
         final String name = e.name;
         final bool isSetter = e.setter != null;
         String? wrappedType;
@@ -451,12 +603,13 @@ Future(() {
       }).join('\n');
 
   String _generateConstructorBody({
-    required String className,
+    required ClassElement element,
     required List<FieldElement> linkedFields,
     required List<FieldElement> selectionFields,
     required List<FieldElement> streamFields,
   }) {
     final Set<String> dependencies = <String>{};
+
     for (final FieldElement f in linkedFields) {
       String typename = f.type.toString();
       if (!vibeAnnotation.hasAnnotationOf(f.type.element!)) {
@@ -579,6 +732,7 @@ ZipStream(<Stream<dynamic>>[$linkedStreams], (List<dynamic> zs) => zs)
     }
   );
 ''';
+
     return '''
 $loadDependencies
 ret..

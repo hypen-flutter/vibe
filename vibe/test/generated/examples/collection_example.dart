@@ -2,7 +2,7 @@ import 'package:vibe/vibe.dart';
 
 part 'collection_example.vibe.dart';
 
-@Vibe()
+@Vibe(autoDispose: true)
 class Collection with _Collection {
   Collection();
   List<int> list = [];
