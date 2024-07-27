@@ -3,13 +3,10 @@ part of 'computed_example.dart';
 
 mixin _Computable implements GeneratedViber<$Computable> {
   @override
-  dynamic get $key => Computable;
+  dynamic $key = Computable;
 
   @override
   dynamic get $effectKey => Computable;
-
-  @override
-  dynamic get $loaderKey => Computable;
 
   void dispose() {}
 
@@ -31,12 +28,12 @@ class $Computable
     if (ret != null && !overrides) {
       return ret;
     }
-
     ret = $Computable(container)..src = src;
-    ret.notify();
+
+    ret!.notify();
 
     container.add<$Computable>(src.$key, ret, overrides: overrides);
-    return ret;
+    return ret!;
   }
 
   @override
@@ -49,10 +46,7 @@ class $Computable
   dynamic get $effectKey => src.$effectKey;
 
   @override
-  dynamic get $loaderKey => src.$loaderKey;
-
-  @override
-  dynamic get $key => src.$key;
+  late dynamic $key = src.$key;
 
   List<ComputableEffect> get effects =>
       (container.findEffects($effectKey) ?? [])
@@ -80,7 +74,9 @@ class $Computable
 
     Future(() {
       for (final effect in effects) {
-        Future(effect.didComputableIncrease);
+        Future(() {
+          effect.didComputableIncrease();
+        });
       }
     });
   }
@@ -106,18 +102,6 @@ mixin ComputableEffect on VibeEffect {
   Future<void> didComputableIncrease() async {}
 }
 
-class _ComputableById extends Computable {
-  _ComputableById(this.id);
-
-  final int id;
-
-  @override
-  dynamic get $loaderKey => _ComputableById;
-
-  @override
-  dynamic get $key => _ComputableByIdKey(id);
-}
-
 class _ComputableByIdKey with VibeEquatableMixin {
   _ComputableByIdKey(this.id);
 
@@ -130,45 +114,50 @@ class _ComputableByIdKey with VibeEquatableMixin {
 mixin ComputeComputableById on VibeEffect {
   @override
   void init() {
-    addKey(_ComputableById);
+    addKey(ComputeComputableById);
   }
 
   Future<Computable> computeComputableById(int id);
 }
 
 class ComputableById extends Computed {
-  ComputableById(this.container, this.parent);
+  ComputableById(this.container, [this.parent]);
 
   final VibeContainer container;
-  final Viber parent;
+  final Viber? parent;
 
   Future<Computable> call(int id) async {
-    final loader = (container.findEffects(_ComputableById) ?? [])
+    final loader = (container.findEffects(ComputeComputableById) ?? [])
         .whereType<ComputeComputableById>()
         .firstOrNull;
     if (loader == null) {
       throw Exception('You did not register [ComputeComputableById].');
     }
 
+    final key = _ComputableByIdKey(id);
+    final prev = container.find(key);
+    if (prev != null) {
+      parent?.addDependency(prev);
+      return prev as Computable;
+    }
+
     final src = await loader.computeComputableById(id);
+    src.$key = key;
+
     final ret = $Computable.find(container, src: src);
-    parent.addDependency(ret);
+    parent?.addDependency(ret);
 
     await ret.stream.first;
-
     return ret;
   }
 }
 
 mixin _ComputableUsage implements GeneratedViber<$ComputableUsage> {
   @override
-  dynamic get $key => ComputableUsage;
+  dynamic $key = ComputableUsage;
 
   @override
   dynamic get $effectKey => ComputableUsage;
-
-  @override
-  dynamic get $loaderKey => ComputableUsage;
 
   void dispose() {}
 
@@ -192,11 +181,11 @@ class $ComputableUsage
       return ret;
     }
     ret = $ComputableUsage(container)..src = src;
-    src.computableById = ComputableById(container, ret);
-    ret.notify();
+    src..computableById = ComputableById(container, ret!);
+    ret!.notify();
 
     container.add<$ComputableUsage>(src.$key, ret, overrides: overrides);
-    return ret;
+    return ret!;
   }
 
   @override
@@ -209,10 +198,7 @@ class $ComputableUsage
   dynamic get $effectKey => src.$effectKey;
 
   @override
-  dynamic get $loaderKey => src.$loaderKey;
-
-  @override
-  dynamic get $key => src.$key;
+  late dynamic $key = src.$key;
 
   List<ComputableUsageEffect> get effects =>
       (container.findEffects($effectKey) ?? [])

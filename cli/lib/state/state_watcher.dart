@@ -153,13 +153,10 @@ $code
     final String mixin = '''
 mixin ${className.vibeMixin} implements GeneratedViber<$vibeClassName> {
   @override
-  dynamic get \$key => $className;
+  dynamic \$key = $className;
 
   @override
   dynamic get \$effectKey => $className;
-
-  @override
-  dynamic get \$loaderKey => $className;
 
   void dispose() {}
   ${_generateSelectVibeMethods(selectionFields)}
@@ -224,10 +221,7 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   dynamic get \$effectKey => src.\$effectKey;
 
   @override
-  dynamic get \$loaderKey => src.\$loaderKey;
-
-  @override
-  dynamic get \$key => src.\$key;
+  late dynamic \$key = src.\$key;
 
   List<${className}Effect> get effects 
         => (container.findEffects(\$effectKey) ?? [])
@@ -283,8 +277,7 @@ $computedVibe
 
     return constructors.map((ConstructorElement c) {
       final String name = c.name.pascalCase;
-      final String srcName = '_$className$name';
-      final String keyName = '${srcName}Key';
+      final String keyName = '_$className${name}Key';
       final String computeName = 'Compute$className$name';
       final String computedName = '$className$name';
       final List<ParameterElement> params = c.parameters;
@@ -334,18 +327,6 @@ $finalState ${p.type} $name;
           .where((String s) => s.isNotEmpty)
           .join(',');
 
-      final String privateSrc = '''
-class $srcName extends $className {
-  $srcName($thisParams);
-  $fields
-
-  @override
-  dynamic get \$loaderKey => $srcName;
-
-  @override
-  dynamic get \$key => $keyName($redirectParams);
-}
-''';
       final String props = params.map((ParameterElement p) => p.name).join(',');
       final String privateKey = '''
 class $keyName with VibeEquatableMixin {
@@ -371,7 +352,7 @@ class $keyName with VibeEquatableMixin {
 mixin $computeName on VibeEffect {
   @override
   void init() {
-    addKey($srcName);
+    addKey($computeName);
   }
 
   Future<$className> compute$computedName($originalParams);
@@ -385,25 +366,32 @@ class $computedName extends Computed {
   final Viber? parent;
 
   Future<$className> call($originalParams) async {
-    final loader = (container.findEffects($srcName) ?? [])
+    final loader = (container.findEffects($computeName) ?? [])
         .whereType<$computeName>()
         .firstOrNull;
     if (loader == null) {
       throw Exception('You did not register [$computeName].');
     }
 
+    final key = $keyName($redirectParams);
+    final prev = container.find(key);
+    if (prev != null) {
+      parent?.addDependency(prev);
+      return prev as $className;
+    }
+
     final src = await loader.compute$computedName($redirectParams);
+    src.\$key = key;
+
     final ret = ${className.vibeClass}.find(container, src: src);
     parent?.addDependency(ret);
 
     await ret.stream.first;
-
     return ret;
   }
 }
 ''';
       return '''
-$privateSrc
 $privateKey
 $computer
 $computed

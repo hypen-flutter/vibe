@@ -11,7 +11,6 @@ abstract interface class GeneratedViber<T> {
   T Function(VibeContainer container, {bool override}) toVibe();
   dynamic get $key;
   dynamic get $effectKey;
-  dynamic get $loaderKey;
 }
 
 mixin Viber<T> on EquatableMixin {
@@ -63,9 +62,6 @@ mixin Viber<T> on EquatableMixin {
   void addSubscription(StreamSubscription sub) {
     subscriptions.add(sub);
   }
-
-  Future<V> loadVibe<V>(GeneratedViber<V> v) async =>
-      v.toVibe()(container, override: false);
 
   @mustCallSuper
   void dispose() {
