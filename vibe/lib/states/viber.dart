@@ -10,6 +10,8 @@ import 'equals.dart';
 abstract interface class GeneratedViber<T> {
   T Function(VibeContainer container, {bool override}) toVibe();
   dynamic get $key;
+  dynamic get $effectKey;
+  dynamic get $loaderKey;
 }
 
 mixin Viber<T> on EquatableMixin {

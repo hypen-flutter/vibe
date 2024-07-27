@@ -82,5 +82,5 @@ class StreamVibe {
 @Target({TargetKind.classType})
 class WithVibe {
   const WithVibe(this.vibes);
-  final List<Type> vibes;
+  final List<dynamic> vibes;
 }

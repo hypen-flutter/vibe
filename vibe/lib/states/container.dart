@@ -1,8 +1,11 @@
+import '../vibe.dart';
+
 /// A simple container maintains the streams
 class VibeContainer {
   VibeContainer({this.parent});
   VibeContainer? parent;
   final Map<dynamic, dynamic> _container = {};
+  final Map<dynamic, List<VibeEffect>> _effectContainer = {};
 
   /// Adds new stream
   T add<T>(dynamic key, T val, {bool overrides = false}) {
@@ -24,7 +27,21 @@ class VibeContainer {
     return parent?.remove(key);
   }
 
+  /// Adds [VibeEffect]
+  void addEffect(dynamic key, VibeEffect effect) {
+    (_effectContainer[key] ??= []).add(effect);
+  }
+
+  /// Finds all [VibeEffect]s
+  List<VibeEffect>? findEffects(dynamic key) => _effectContainer[key];
+
+  /// Remove [VibeEffect]
+  void removeEffect(dynamic key, VibeEffect effect) {
+    _effectContainer[key]?.remove(effect);
+  }
+
   void dispose() {
+    _effectContainer.clear();
     _container.clear();
   }
 }

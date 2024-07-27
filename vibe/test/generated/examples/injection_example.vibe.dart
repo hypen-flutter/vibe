@@ -5,6 +5,12 @@ mixin _Derived implements GeneratedViber<$Derived> {
   @override
   dynamic get $key => Derived;
 
+  @override
+  dynamic get $effectKey => Derived;
+
+  @override
+  dynamic get $loaderKey => Derived;
+
   void dispose() {}
   VibeFutureOr<int> $selectCount(Counter counter);
 
@@ -64,7 +70,17 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
   bool get autoDispose => true;
 
   @override
+  dynamic get $effectKey => src.$effectKey;
+
+  @override
+  dynamic get $loaderKey => src.$loaderKey;
+
+  @override
   dynamic get $key => src.$key;
+
+  List<DerivedEffect> get effects => (container.findEffects($effectKey) ?? [])
+      .map((e) => e as DerivedEffect)
+      .toList();
 
   late Derived src;
 
@@ -121,4 +137,13 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
     src.dispose();
     super.dispose();
   }
+}
+
+mixin DerivedEffect on VibeEffect {
+  @override
+  void init() {
+    addKey(Derived);
+  }
+
+  Future<void> didDerivedUpdated() async {}
 }

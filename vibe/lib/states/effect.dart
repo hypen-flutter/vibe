@@ -1,14 +1,23 @@
-// ignore: one_member_abstracts
-import 'container.dart';
+import '../vibe.dart';
 
-// ignore: one_member_abstracts
-
+/// SideEffect of [Vibe]
 abstract class VibeEffect {
-  late final VibeContainer container;
+  final Set<dynamic> _effectKeys = {};
 
-  void init() {}
+  /// Initializes the effect
+  ///
+  /// Developers will not use this. Vibe framework automatically calls this.
+  void init();
 
-  void addLoaderKey(dynamic key) {}
+  /// Adds related loaders
+  void addKey(dynamic key) {
+    _effectKeys.add(key);
+  }
 
-  void addEffectKey(dynamic key) {}
+  /// Register effect to [VibeContainer]
+  void register(VibeContainer container) {
+    for (final key in _effectKeys) {
+      container.addEffect(key, this);
+    }
+  }
 }

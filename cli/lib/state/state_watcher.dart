@@ -155,6 +155,12 @@ mixin ${className.vibeMixin} implements GeneratedViber<$vibeClassName> {
   @override
   dynamic get \$key => $className;
 
+  @override
+  dynamic get \$effectKey => $className;
+
+  @override
+  dynamic get \$loaderKey => $className;
+
   void dispose() {}
   ${_generateSelectVibeMethods(selectionFields)}
   ${_generateStreamVibeMethods(streamFields)}
@@ -199,7 +205,18 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   bool get autoDispose => true;
 
   @override
+  dynamic get \$effectKey => src.\$effectKey;
+
+  @override
+  dynamic get \$loaderKey => src.\$loaderKey;
+
+  @override
   dynamic get \$key => src.\$key;
+
+  List<${className}Effect> get effects 
+        => (container.findEffects(\$effectKey) ?? [])
+            .map((e) => e as ${className}Effect)
+            .toList();
 
   late $className src;
 
@@ -221,10 +238,42 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   }
 }
 ''';
+
+    final String effect = _generateEffect(element, <String>{
+      ...generatedMethods,
+      'dispose',
+    });
     return '''
 $mixin
 
 $viber
+
+$effect
+''';
+  }
+
+  String _generateEffect(ClassElement element, Set<String> except) {
+    final String className = element.name;
+    final List<MethodElement> methods = element.methods.toList();
+    final String methodEffects = methods
+        .where((MethodElement e) => !except.contains(e.name))
+        .map((MethodElement m) {
+      final String name = m.name;
+      final String decl = m.toString();
+      final String params = decl.substring(decl.indexOf(name) + name.length);
+      return '''
+Future<void> did$className${name.pascalCase}$params async {}
+''';
+    }).join('\n');
+    return '''
+mixin ${className}Effect on VibeEffect {
+  @override
+  void init() {
+    addKey($className);
+  }
+  Future<void> did${className}Updated() async {}
+  $methodEffects
+}
 ''';
   }
 
@@ -317,8 +366,8 @@ $type get $name => src.$name;
 ${isSetter ? '''
 @override
 set $name($type val) {
-src.$name = val;
-notify();
+  src.$name = val;
+  notify();
 }
 ''' : ''}
 
@@ -370,18 +419,30 @@ notify();
                 : '''
   notify();
   ''';
+        String effect = '''
+Future(() {
+  for(final effect in effects) {
+    Future(() {
+      effect.did${element.name}${name.pascalCase}($argsRedirections);
+    });
+  }
+});
+''';
         if (generatedMethods.contains(name)) {
           notify = '';
+          effect = '';
         }
 
-        return '''
+        final String ret = '''
   @override
   $m {
     $redirection
     $notify
+    $effect
     $returning
   } 
   ''';
+        return ret;
       }).join('\n');
 
   String _generateConstructorBody({

@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../annotations/state_annotations.dart';
 import '../states/container.dart';
+import '../states/effect.dart';
 import '../states/viber.dart';
 
 /// Vibe version of [StatelessWidget]
@@ -193,11 +194,15 @@ class VibeScope extends VibeStatefulWidget {
   const VibeScope({
     required this.child,
     this.overrides = const [],
+    this.effects = const [],
     super.key,
   });
 
   /// Child widget
   final Widget child;
+
+  /// Side effects that implements [VibeEffect]
+  final List<VibeEffect> effects;
 
   /// Overrides the [Vibe] classes
   final List<Viber Function(VibeContainer container, {bool override})>
@@ -212,19 +217,19 @@ class _VibeScopeState extends VibeWidgetState<VibeScope> {
       VibeContainer(parent: InheritedVibeContainer.of(context));
 
   @override
-  void initState() {
-    super.initState();
-    for (final override in widget.overrides) {
-      override(container, override: true);
-    }
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final currentParent = InheritedVibeContainer.of(context);
     if (container.parent != currentParent) {
       container.parent = currentParent;
+    }
+    for (final override in widget.overrides) {
+      override(container, override: true);
+    }
+    for (final effect in widget.effects) {
+      effect
+        ..init()
+        ..register(container);
     }
   }
 

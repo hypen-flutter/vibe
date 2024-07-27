@@ -5,6 +5,12 @@ mixin _Collection implements GeneratedViber<$Collection> {
   @override
   dynamic get $key => Collection;
 
+  @override
+  dynamic get $effectKey => Collection;
+
+  @override
+  dynamic get $loaderKey => Collection;
+
   void dispose() {}
 
   @override
@@ -39,7 +45,18 @@ class $Collection
   bool get autoDispose => true;
 
   @override
+  dynamic get $effectKey => src.$effectKey;
+
+  @override
+  dynamic get $loaderKey => src.$loaderKey;
+
+  @override
   dynamic get $key => src.$key;
+
+  List<CollectionEffect> get effects =>
+      (container.findEffects($effectKey) ?? [])
+          .map((e) => e as CollectionEffect)
+          .toList();
 
   late Collection src;
 
@@ -89,4 +106,13 @@ class $Collection
     src.dispose();
     super.dispose();
   }
+}
+
+mixin CollectionEffect on VibeEffect {
+  @override
+  void init() {
+    addKey(Collection);
+  }
+
+  Future<void> didCollectionUpdated() async {}
 }
