@@ -325,7 +325,9 @@ $finalState ${p.type} $name;
       final String redirectPositionals =
           positionals.map((ParameterElement p) => p.name).join(',');
       final String redirectNamed = named.isNotEmpty
-          ? '{${named.map((ParameterElement p) => '${p.name}: ${p.name}').join(',')}}'
+          ? '{${named.map(
+                (ParameterElement p) => '${p.name}: ${p.name}',
+              ).join(',')}}'
           : '';
 
       final String redirectParams = <String>[redirectPositionals, redirectNamed]
@@ -377,10 +379,10 @@ mixin $computeName on VibeEffect {
 ''';
       final String computed = '''
 class $computedName extends Computed {
-  $computedName(this.container, this.parent);
+  $computedName(this.container, [this.parent]);
 
   final VibeContainer container;
-  final Viber parent;
+  final Viber? parent;
 
   Future<$className> call($originalParams) async {
     final loader = (container.findEffects($srcName) ?? [])
@@ -392,7 +394,7 @@ class $computedName extends Computed {
 
     final src = await loader.compute$computedName($redirectParams);
     final ret = ${className.vibeClass}.find(container, src: src);
-    parent.addDependency(ret);
+    parent?.addDependency(ret);
 
     await ret.stream.first;
 
@@ -756,7 +758,17 @@ $zipStream
         .firstAnnotationOf(element)!
         .getField('vibes')!
         .toListValue()!
+        .where((DartObject e) => e.toTypeValue() != null)
         .map((DartObject e) => e.toTypeValue()!)
+        .toList();
+
+    // TODO: COMPUTED VIBE
+    final List<ExecutableElement> _ = withVibeAnnotation
+        .firstAnnotationOf(element)!
+        .getField('vibes')!
+        .toListValue()!
+        .where((DartObject e) => e.toFunctionValue() != null)
+        .map((DartObject e) => e.toFunctionValue()!)
         .toList();
 
     final String vibeGetters = linkedVibes.map((DartType type) {
@@ -778,12 +790,24 @@ $typename get ${typename.camelCase} => ${typename.vibeClass}.find(\$container);
 ${typename.camelCase} as Viber
 ''';
     }).join(',');
+    final String fieldsCheck = element.fields.map((FieldElement f) {
+      final String name = f.name;
+
+      return '''
+if ((this as $className).$name is Viber) 
+  (this as $className).$name as Viber
+''';
+    }).join(',');
+
+    final String allVibes = <String>[vibers, fieldsCheck]
+        .where((String s) => s.isNotEmpty)
+        .join(',');
 
     return '''
 mixin _$className on $superTypeName {
   $vibeGetters
   @override
-  List<Viber> get \$vibes => [$vibers];
+  List<Viber> get \$vibes => [$allVibes];
 }
 ''';
   }

@@ -5,7 +5,11 @@ mixin _WidgetExample on VibeWidget {
   Counter get counter => $Counter.find($container);
 
   @override
-  List<Viber> get $vibes => [counter as Viber];
+  List<Viber> get $vibes => [
+        counter as Viber,
+        if ((this as WidgetExample).suffix is Viber)
+          (this as WidgetExample).suffix as Viber
+      ];
 }
 
 mixin _StatefulExampleState on VibeWidgetState<StatefulExample> {
@@ -13,4 +17,12 @@ mixin _StatefulExampleState on VibeWidgetState<StatefulExample> {
 
   @override
   List<Viber> get $vibes => [counter as Viber];
+}
+
+mixin _WidgetWithComputed on VibeWidget {
+  @override
+  List<Viber> get $vibes => [
+        if ((this as WidgetWithComputed).id is Viber)
+          (this as WidgetWithComputed).id as Viber
+      ];
 }

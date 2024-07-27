@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vibe/vibe.dart';
 
+import 'computed_example.dart';
 import 'counter_example.dart';
 
 part 'widget_example.vibe.dart';
@@ -52,4 +53,14 @@ class StatefulExampleState extends VibeWidgetState<StatefulExample>
           ),
         ],
       );
+}
+
+@WithVibe([Computable.byId])
+class WidgetWithComputed extends VibeWidget {
+  const WidgetWithComputed({required this.id, super.key});
+
+  final int id;
+
+  @override
+  Widget build(BuildContext context) => const Row();
 }
