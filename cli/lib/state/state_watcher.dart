@@ -182,6 +182,11 @@ ret!.notify();
             selectionFields: selectionFields,
             streamFields: streamFields);
 
+    final bool autoDispose = vibeAnnotation
+        .firstAnnotationOf(element)!
+        .getField('autoDispose')!
+        .toBoolValue()!;
+
     final String viber = '''
 class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $className {
   $vibeClassName(this.container);
@@ -202,7 +207,7 @@ class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> implements $
   final VibeContainer container;
 
   @override
-  bool get autoDispose => true;
+  bool get autoDispose => $autoDispose;
 
   @override
   dynamic get \$effectKey => src.\$effectKey;
