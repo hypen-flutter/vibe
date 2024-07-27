@@ -15,6 +15,25 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`vibe_cli` - `v0.0.5`](#vibe_cli---v005)
+
+---
+
+#### `vibe_cli` - `v0.0.5`
+
+
+## 2024-07-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`vibe` - `v0.0.5`](#vibe---v005)
 
 ---
