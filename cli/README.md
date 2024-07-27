@@ -1,1 +1,10 @@
-A sample command-line application providing basic argument parsing with an entrypoint in `bin/`.
+# TODO
+
+- [x] Simple state
+- [x] Widget with simple state
+- [x] Auto injection
+- [x] Widget with simple injection
+- [x] Side effect
+- [x] Widget with side effect
+- [x] Loader
+- [ ] Widget with loader
