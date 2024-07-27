@@ -762,7 +762,7 @@ $zipStream
         .map((DartObject e) => e.toTypeValue()!)
         .toList();
 
-    // TODO: COMPUTED VIBE
+    // TODO(hypen-flutter): support computed vibe.
     final List<ExecutableElement> _ = withVibeAnnotation
         .firstAnnotationOf(element)!
         .getField('vibes')!
