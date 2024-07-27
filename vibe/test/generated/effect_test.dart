@@ -27,6 +27,25 @@ int main() {
         await t.pumpAndSettle();
       });
     });
+
+    testWidgets('runs multiple effects', (t) async {
+      final effect = MyEffect(expectAsync0(() {}, count: 2));
+      await t.pumpWidget(
+        VibeScope(
+          effects: [effect, effect],
+          child: const MaterialApp(
+            home: WidgetExample(),
+          ),
+        ),
+      );
+      await t.runAsync(() async {
+        await t.pumpAndSettle();
+      });
+      await t.tap(find.text('increase'));
+      await t.runAsync(() async {
+        await t.pumpAndSettle();
+      });
+    });
   });
   return 0;
 }
