@@ -16,7 +16,7 @@ abstract interface class GeneratedViber<T> {
 mixin Viber<T> on EquatableMixin {
   final subject = BehaviorSubject<List>();
   final Set<Viber> _dependencies = {};
-  late final stream = subject.where((_) => _refCount != 0).distinct((a, b) {
+  late final stream = subject.distinct((a, b) {
     final result = deepEquals(a, b);
     return result;
   }).map<T>((event) => this as T);

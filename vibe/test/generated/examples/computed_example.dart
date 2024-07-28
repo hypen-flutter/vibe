@@ -25,3 +25,9 @@ class ComputableUsage with _ComputableUsage {
     computable.increase();
   }
 }
+
+class MyComputableLoader extends VibeEffect with ComputeComputableById {
+  @override
+  Future<Computable> computeComputableById(int id) async =>
+      Computable()..count = id;
+}

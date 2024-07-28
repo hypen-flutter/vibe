@@ -53,9 +53,3 @@ int main() {
   });
   return 0;
 }
-
-class MyComputableLoader extends VibeEffect with ComputeComputableById {
-  @override
-  Future<Computable> computeComputableById(int id) async =>
-      Computable()..count = id;
-}

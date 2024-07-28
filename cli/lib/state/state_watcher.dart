@@ -190,7 +190,7 @@ ret!.notify();
       final String name = f.name;
       final String type = f.type.getDisplayString().replaceAll('*', '');
       return '''
-$name = $type(container, ret!)
+$name = $type(container, parent: ret!)
 ''';
     }).join('..');
 
@@ -360,10 +360,13 @@ mixin $computeName on VibeEffect {
 ''';
       final String computed = '''
 class $computedName extends Computed {
-  $computedName(this.container, [this.parent]);
+  $computedName(this.container, {this.parent, this.callback});
 
   final VibeContainer container;
   final Viber? parent;
+  final void Function(Viber v)? callback;
+
+  static dynamic getKey($originalParams) => $keyName($redirectParams);
 
   Future<$className> call($originalParams) async {
     final loader = (container.findEffects($computeName) ?? [])
@@ -373,11 +376,12 @@ class $computedName extends Computed {
       throw Exception('You did not register [$computeName].');
     }
 
-    final key = $keyName($redirectParams);
+    final key = getKey($redirectParams);
     final prev = container.find(key);
     if (prev != null) {
       parent?.addDependency(prev);
       await prev.stream.first;
+      callback?.call(prev as Viber);
       return prev as $className;
     }
 
@@ -388,6 +392,7 @@ class $computedName extends Computed {
     parent?.addDependency(ret);
 
     await ret.stream.first;
+    callback?.call(ret);
     return ret;
   }
 }
@@ -751,13 +756,13 @@ $zipStream
         .map((DartObject e) => e.toTypeValue()!)
         .toList();
 
-    // TODO(hypen-flutter): support computed vibe.
-    final List<ExecutableElement> _ = withVibeAnnotation
+    final List<ExecutableElement> computed = withVibeAnnotation
         .firstAnnotationOf(element)!
         .getField('vibes')!
         .toListValue()!
         .where((DartObject e) => e.toFunctionValue() != null)
         .map((DartObject e) => e.toFunctionValue()!)
+        .where((ExecutableElement e) => computedAnnotation.hasAnnotationOf(e))
         .toList();
 
     final String vibeGetters = linkedVibes.map((DartType type) {
@@ -792,9 +797,57 @@ if ((this as $className).$name is Viber)
         .where((String s) => s.isNotEmpty)
         .join(',');
 
+    final String callback =
+        superTypeName == 'VibeWidget' ? r'$state.addVibe' : 'addVibe';
+    final String rebuild =
+        superTypeName == 'VibeWidget' ? r'$state.rebuild()' : 'rebuild()';
+
+    final String computedVibes = computed.map((ExecutableElement e) {
+      final String name = e.name;
+      final String className = e.enclosingElement.name!;
+      final String copmutedName = className + name.pascalCase;
+      final List<ParameterElement> positionals =
+          e.parameters.where((ParameterElement p) => p.isPositional).toList();
+      final List<ParameterElement> named =
+          e.parameters.where((ParameterElement p) => p.isNamed).toList();
+      final String originalPositionals = positionals
+          .map((ParameterElement p) => '${p.type} ${p.name}')
+          .join(',');
+      final String originalNamed = named.isNotEmpty
+          ? '{${named.map(
+                (ParameterElement p) => '${p.type} ${p.name}',
+              ).join(',')}}'
+          : '';
+      final String originalParams = <String>[originalPositionals, originalNamed]
+          .where((String s) => s.isNotEmpty)
+          .join(',');
+
+      final String redirectParams = e.parameters
+          .map((ParameterElement p) =>
+              p.isNamed ? '${p.name}: ${p.name}' : p.name)
+          .join(',');
+
+      return '''
+$className ${copmutedName.camelCase}($originalParams) {
+    final key = $copmutedName.getKey($redirectParams);
+    final ret = \$container.find(key);
+    if (ret != null) {
+      $callback(ret);
+      return ret;
+    }
+    $copmutedName(\$container)($redirectParams).then((v) {
+      $callback(v as Viber);
+      $rebuild;
+    });
+    throw const LoadingVibeException();
+}
+''';
+    }).join('\n');
+
     return '''
 mixin _$className on $superTypeName {
   $vibeGetters
+  $computedVibes
   @override
   List<Viber> get \$vibes => [$allVibes];
 }

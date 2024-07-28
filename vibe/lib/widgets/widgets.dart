@@ -155,6 +155,11 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
     }));
   }
 
+  /// Redirect to `setState`
+  void rebuild() {
+    setState(() {});
+  }
+
   /// Clears the dependencies
   void clearVibes() {
     for (final StreamSubscription s in _subscriptions) {

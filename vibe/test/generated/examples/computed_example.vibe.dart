@@ -30,10 +30,10 @@ class $Computable
     }
     ret = $Computable(container)..src = src;
 
-    ret!.notify();
+    ret.notify();
 
     container.add<$Computable>(src.$key, ret, overrides: overrides);
-    return ret!;
+    return ret;
   }
 
   @override
@@ -74,9 +74,7 @@ class $Computable
 
     Future(() {
       for (final effect in effects) {
-        Future(() {
-          effect.didComputableIncrease();
-        });
+        Future(effect.didComputableIncrease);
       }
     });
   }
@@ -121,10 +119,13 @@ mixin ComputeComputableById on VibeEffect {
 }
 
 class ComputableById extends Computed {
-  ComputableById(this.container, [this.parent]);
+  ComputableById(this.container, {this.parent, this.callback});
 
   final VibeContainer container;
   final Viber? parent;
+  final void Function(Viber v)? callback;
+
+  static dynamic getKey(int id) => _ComputableByIdKey(id);
 
   Future<Computable> call(int id) async {
     final loader = (container.findEffects(ComputeComputableById) ?? [])
@@ -134,10 +135,12 @@ class ComputableById extends Computed {
       throw Exception('You did not register [ComputeComputableById].');
     }
 
-    final key = _ComputableByIdKey(id);
+    final key = getKey(id);
     final prev = container.find(key);
     if (prev != null) {
       parent?.addDependency(prev);
+      callback?.call(prev as Viber);
+      await prev.stream.first;
       return prev as Computable;
     }
 
@@ -146,6 +149,7 @@ class ComputableById extends Computed {
 
     final ret = $Computable.find(container, src: src);
     parent?.addDependency(ret);
+    callback?.call(ret);
 
     await ret.stream.first;
     return ret;
@@ -181,11 +185,11 @@ class $ComputableUsage
       return ret;
     }
     ret = $ComputableUsage(container)..src = src;
-    src..computableById = ComputableById(container, ret!);
-    ret!.notify();
+    src.computableById = ComputableById(container, parent: ret);
+    ret.notify();
 
     container.add<$ComputableUsage>(src.$key, ret, overrides: overrides);
-    return ret!;
+    return ret;
   }
 
   @override

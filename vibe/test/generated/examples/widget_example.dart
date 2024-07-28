@@ -40,6 +40,7 @@ class StatefulExample extends VibeStatefulWidget {
 
 @WithVibe([
   Counter,
+  Computable.byId,
 ])
 class StatefulExampleState extends VibeWidgetState<StatefulExample>
     with _StatefulExampleState {
@@ -56,11 +57,13 @@ class StatefulExampleState extends VibeWidgetState<StatefulExample>
 }
 
 @WithVibe([Computable.byId])
-class WidgetWithComputed extends VibeWidget {
+class WidgetWithComputed extends VibeWidget with _WidgetWithComputed {
   const WidgetWithComputed({required this.id, super.key});
 
   final int id;
 
   @override
-  Widget build(BuildContext context) => const Row();
+  Widget build(BuildContext context) => Row(
+        children: [Text('${computableById(id).count}')],
+      );
 }
