@@ -1,3 +1,7 @@
+## 0.1.3
+
+ - **FEAT**: do not suggest when the statement already exists.
+
 ## 0.1.2
 
  - **FEAT**: add part directive injection assist.

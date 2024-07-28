@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`vibe_lint` - `v0.1.3`](#vibe_lint---v013)
+
+---
+
+#### `vibe_lint` - `v0.1.3`
+
+ - **FEAT**: do not suggest when the statement already exists.
+
+
+## 2024-07-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`vibe_lint` - `v0.1.2`](#vibe_lint---v012)
 
 ---
