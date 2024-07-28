@@ -29,6 +29,26 @@ abstract class VibeWidget extends VibeStatefulWidget {
   VibeWidgetState get $state => VibeStatefulElement.getState(this)!;
 }
 
+/// Scoping the [Computed] Vibe to be built inside of this widget.
+class VibeBuilder extends VibeWidget {
+  const VibeBuilder({
+    required this.builder,
+    super.key,
+    this.loading,
+  });
+
+  /// Be used as a loading indicator
+  final Widget Function(BuildContext context)? loading;
+
+  /// Actual part of the UI
+  final Widget Function(BuildContext context) builder;
+
+  @override
+  Widget loader(BuildContext context) => (loading ?? super.loader)(context);
+  @override
+  Widget build(BuildContext context) => builder(context);
+}
+
 class _VibeStatelessWidgetState extends VibeWidgetState<VibeWidget> {
   @override
   List<Viber> get $vibes => widget.$vibes;
