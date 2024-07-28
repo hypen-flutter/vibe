@@ -77,7 +77,7 @@ abstract class VibeStatefulWidget extends StatefulWidget {
 /// [State] for [VibeStatefulWidget]
 abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   final List<StreamSubscription> _subscriptions = <StreamSubscription>[];
-  final List<Viber> _vibes = <Viber>[];
+  final Set<Viber> _vibes = <Viber>{};
   List<Viber> get $vibes => <Viber>[];
   VibeContainer get $container => VibeStatefulElement.getContainer(widget)!;
   VibeWidgetState get $state => VibeStatefulElement.getState(widget)!;
@@ -133,6 +133,9 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   /// Users will never call this.
   @nonVirtual
   void addVibe(Viber v) {
+    if (_vibes.contains(v)) {
+      return;
+    }
     _vibes.add(v..ref());
     // Wait for the other dependencies
     if (v.subject.valueOrNull == null) {
