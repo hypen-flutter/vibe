@@ -13,7 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.12.0
-  rxdart: ^0.28.0
+  rxdart: ^0.27.0
 
 dev_dependencies:
   checks: ^0.3.0
