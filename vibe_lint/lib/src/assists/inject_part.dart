@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/source/source_range.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
@@ -15,7 +16,9 @@ class InjectPartAssist extends DartAssist {
       final vibeFileName = filename.replaceAll('.dart', '.vibe.dart');
       final library = element.library;
       final alreadyContained = library.parts.any((part) {
-        return part.name == vibeFileName;
+        return (part.uri as DirectiveUriWithRelativeUriString)
+                .relativeUriString ==
+            vibeFileName;
       });
       if (alreadyContained) {
         return;

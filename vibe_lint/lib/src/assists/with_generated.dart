@@ -14,13 +14,22 @@ class WithGeneratedClass extends DartAssist {
       if (element == null) {
         return;
       }
+
+      final withName = '_${element.name}';
+      final alreadyHas =
+          element.mixins.any((m) => m.getDisplayString() == withName);
+
+      if (alreadyHas) {
+        return;
+      }
+
       final changeBuilder = reporter.createChangeBuilder(
           priority: 1, message: 'Mixin with _${element.name}');
 
       final insertionPosition = node.extendsClause?.end ?? node.name.end;
 
       changeBuilder.addDartFileEdit((builder) {
-        builder.addSimpleInsertion(insertionPosition, ' with _${element.name}');
+        builder.addSimpleInsertion(insertionPosition, ' with $withName');
       });
     });
   }
