@@ -15,7 +15,7 @@ include: package:lints/recommended.yaml
 
 analyzer:
   plugins:
-    - vibe_lint
+    - custom_lint
 # Uncomment the following section to specify additional rules.
 
 # linter:

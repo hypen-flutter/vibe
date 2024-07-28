@@ -1,8 +1,10 @@
 // TODO: Put public facing types in this file.
 
 /// Checks if you are awesome. Spoiler: you are.
-class Awesome {
+class Awesome with _Awesome {
   bool get isAwesome => true;
 }
 
-int a = 0;
+mixin _Awesome {}
+
+class Me {}
