@@ -1,3 +1,7 @@
+## 0.0.7+2
+
+ - **FIX**: bump down `rxdart` version to support custom lint.
+
 ## 0.0.7+1
 
 - Rebump up `meta`
