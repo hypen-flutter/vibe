@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`vibe_cli` - `v0.0.7`](#vibe_cli---v007)
+
+---
+
+#### `vibe_cli` - `v0.0.7`
+
+ - Bump down `meta` version to match the flutter sdk
+
+
+## 2024-07-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`vibe` - `v0.0.6`](#vibe---v006)
  - [`vibe_cli` - `v0.0.6`](#vibe_cli---v006)
 

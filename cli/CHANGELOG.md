@@ -1,3 +1,7 @@
+## 0.0.7
+
+ - Bump down `meta` version to match the flutter sdk
+
 ## 0.0.6
 
  - **FIX**: await for the first stream to be ready.
