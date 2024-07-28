@@ -5,9 +5,7 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
-    - lib/**.vibe.dart
-    - bin/**.vibe.dart
-    - test/**.vibe.dart
+    - "**.vibe.dart"
 
 linter:
   rules:
