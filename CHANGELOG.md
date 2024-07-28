@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`vibe_lint` - `v0.1.2`](#vibe_lint---v012)
+
+---
+
+#### `vibe_lint` - `v0.1.2`
+
+ - **FEAT**: add part directive injection assist.
+
+
+## 2024-07-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`vibe` - `v0.0.6+1`](#vibe---v0061)
  - [`vibe_cli` - `v0.0.7+2`](#vibe_cli---v0072)
 
