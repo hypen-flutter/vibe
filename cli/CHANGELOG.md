@@ -1,15 +1,15 @@
 ## 0.0.7+1
 
- - y
+- Rebump up `meta`
 
 ## 0.0.7
 
- - Bump down `meta` version to match the flutter sdk
+- Bump down `meta` version to match the flutter sdk
 
 ## 0.0.6
 
- - **FIX**: await for the first stream to be ready.
- - **FEAT**: widget with computed vibe.
+- **FIX**: await for the first stream to be ready.
+- **FEAT**: widget with computed vibe.
 
 ## 0.0.5
 
