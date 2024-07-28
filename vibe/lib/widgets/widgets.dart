@@ -178,6 +178,7 @@ class VibeStatefulElement extends StatefulElement {
     _container[widget] = container;
   }
 
+  /// Removes the related [VibeContainer]
   static void removeContainer(Widget widget) {
     _container.remove(widget);
   }
@@ -186,7 +187,15 @@ class VibeStatefulElement extends StatefulElement {
   VibeWidgetState get state => super.state as VibeWidgetState;
 
   @override
-  Widget build() => state.ready ? super.build() : state.loader(this);
+  Widget build() {
+    try {
+      return state.ready ? super.build() : state.loader(this);
+    } on LoadingVibeException {
+      return state.loader(this);
+    } on Exception {
+      rethrow;
+    }
+  }
 }
 
 /// [VibeContainer] holder
@@ -240,6 +249,7 @@ class _VibeScopeState extends VibeWidgetState<VibeScope> {
       );
 }
 
+/// Source of the [VibeContainer]
 @visibleForTesting
 class InheritedVibeContainer extends InheritedWidget {
   const InheritedVibeContainer({
@@ -248,10 +258,14 @@ class InheritedVibeContainer extends InheritedWidget {
     super.key,
   });
 
+  /// Scoped [VibeContainer]
   final VibeContainer container;
+
+  /// Main [VibeContainer]
   @visibleForTesting
   static final VibeContainer globalContainer = VibeContainer();
 
+  /// Always returns [VibeContainer]
   static VibeContainer of(BuildContext context) =>
       context
           .dependOnInheritedWidgetOfExactType<InheritedVibeContainer>()
@@ -261,4 +275,13 @@ class InheritedVibeContainer extends InheritedWidget {
   @override
   bool updateShouldNotify(covariant InheritedVibeContainer oldWidget) =>
       container != oldWidget.container;
+}
+
+/// Exception when the widget accesses to the [Computed] vibes.
+class LoadingVibeException implements Exception {
+  const LoadingVibeException([this.message = 'Loading Vibe']);
+  final String message;
+
+  @override
+  String toString() => '[LoadingVibeException] $message';
 }
