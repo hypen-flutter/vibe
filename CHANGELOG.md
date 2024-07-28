@@ -15,6 +15,27 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`vibe_lint` - `v0.1.1`](#vibe_lint---v011)
+
+---
+
+#### `vibe_lint` - `v0.1.1`
+
+ - **FEAT**: auto mixin with generated class.
+
+
+## 2024-07-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`vibe_cli` - `v0.0.7+1`](#vibe_cli---v0071)
 
 ---
