@@ -51,9 +51,11 @@ mixin Viber<T> on EquatableMixin {
     ]);
   }
 
+  bool hasVibe(Viber v) => _dependencies.contains(v);
+
   @nonVirtual
   void addDependency(Viber v) {
-    if (_dependencies.contains(v)) {
+    if (hasVibe(v)) {
       return;
     }
     _dependencies.add(v..ref());

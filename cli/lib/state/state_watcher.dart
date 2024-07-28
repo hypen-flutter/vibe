@@ -377,6 +377,7 @@ class $computedName extends Computed {
     final prev = container.find(key);
     if (prev != null) {
       parent?.addDependency(prev);
+      await prev.stream.first;
       return prev as $className;
     }
 

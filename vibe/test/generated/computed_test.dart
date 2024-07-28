@@ -40,6 +40,16 @@ int main() {
       await usage.increaseComputable(1);
       expect(computable.count, equals(2));
     });
+
+    test('accessing multiple times return the same src', () async {
+      final _ = MyComputableLoader()
+        ..init()
+        ..register(container);
+      final computable = await usage.computableById(1);
+      await usage.increaseComputable(1);
+      await usage.increaseComputable(1);
+      expect(computable.count, equals(3));
+    });
   });
   return 0;
 }
