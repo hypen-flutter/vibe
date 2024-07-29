@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-07-30
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`vibe` - `v0.0.6+2`](#vibe---v0062)
+
+---
+
+#### `vibe` - `v0.0.6+2`
+
+ - **REFACTOR**: `VibeBuilder` to `VibeSuspense`.
+
+
 ## 2024-07-29
 
 ### Changes

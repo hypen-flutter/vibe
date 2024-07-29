@@ -1,3 +1,7 @@
+## 0.0.6+2
+
+ - **REFACTOR**: `VibeBuilder` to `VibeSuspense`.
+
 ## 0.0.6+1
 
  - **FIX**: bump down `rxdart` version to support custom lint.
