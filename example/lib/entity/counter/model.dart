@@ -1,6 +1,6 @@
 import 'package:vibe/vibe.dart';
 
-part "model.vibe.dart";
+part 'model.vibe.dart';
 
 @Vibe()
 class Counter with _Counter {

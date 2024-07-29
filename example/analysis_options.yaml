@@ -9,3 +9,9 @@ analyzer:
 custom_Lint:
   debug: true
   verbose: true
+
+linter:
+  rules:
+    - prefer_single_quotes
+    - require_trailing_commas
+    - prefer_relative_imports

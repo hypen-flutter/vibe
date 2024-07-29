@@ -30,8 +30,8 @@ abstract class VibeWidget extends VibeStatefulWidget {
 }
 
 /// Scoping the [Computed] Vibe to be built inside of this widget.
-class VibeBuilder extends VibeWidget {
-  const VibeBuilder({
+class VibeSuspense extends VibeWidget {
+  const VibeSuspense({
     required this.builder,
     super.key,
     this.loading,

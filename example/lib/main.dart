@@ -1,7 +1,8 @@
-import 'package:example/entities/counter/infinity.dart';
-import 'package:example/entities/counter/model.dart';
 import 'package:flutter/material.dart';
 import 'package:vibe/vibe.dart';
+
+import 'entity/counter/infinity.dart';
+import 'entity/counter/model.dart';
 
 part 'main.vibe.dart';
 
@@ -28,9 +29,11 @@ class MainApp extends VibeWidget with _MainApp {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text('${counter.count}'),
-              VibeBuilder(builder: (context) {
-                return Text('Infinity Loaded, ${infinityFromRemote()}');
-              }),
+              VibeSuspense(
+                builder: (context) {
+                  return Text('Infinity Loaded, ${infinityFromRemote()}');
+                },
+              ),
               TextButton(
                 child: const Text('increase'),
                 onPressed: () {
