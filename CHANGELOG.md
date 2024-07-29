@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-07-29
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`vibe_lint` - `v0.1.3+1`](#vibe_lint---v0131)
+
+---
+
+#### `vibe_lint` - `v0.1.3+1`
+
+ - **FIX**: lint nullability.
+
+
 ## 2024-07-28
 
 ### Changes

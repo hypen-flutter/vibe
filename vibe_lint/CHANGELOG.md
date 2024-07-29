@@ -1,3 +1,7 @@
+## 0.1.3+1
+
+ - **FIX**: lint nullability.
+
 ## 0.1.3
 
  - **FEAT**: do not suggest when the statement already exists.
