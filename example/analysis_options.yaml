@@ -5,3 +5,7 @@ analyzer:
     - custom_lint
   exclude:
     - "**.vibe.dart"
+
+custom_Lint:
+  debug: true
+  verbose: true

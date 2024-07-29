@@ -8,12 +8,19 @@ class ConvertToVibeWidget extends DartAssist {
   @override
   void run(CustomLintResolver resolver, ChangeReporter reporter,
       CustomLintContext context, SourceRange target) {
-    if (!context.pubspec.dependencies.keys.contains('vibe')) {
-      return;
-    }
     context.registry.addExtendsClause(
       (node) {
-        node.superclass;
+        if (node.toSource().contains('VibeWidget')) {
+          return;
+        }
+        final changeBuilder = reporter.createChangeBuilder(
+            priority: 1, message: 'Change to [VibeWidget]');
+        changeBuilder.addDartFileEdit(
+          (builder) {
+            builder.addSimpleReplacement(
+                node.sourceRange, 'extends VibeWidget');
+          },
+        );
       },
     );
   }

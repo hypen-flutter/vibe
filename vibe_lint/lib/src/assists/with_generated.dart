@@ -16,8 +16,8 @@ class WithGeneratedClass extends DartAssist {
       }
 
       final withName = '_${element.name}';
-      final alreadyHas =
-          element.mixins.any((m) => m.getDisplayString() == withName);
+      final alreadyHas = element.mixins
+          .any((m) => m.getDisplayString(withNullability: false) == withName);
 
       if (alreadyHas) {
         return;
