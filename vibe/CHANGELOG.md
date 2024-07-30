@@ -1,3 +1,7 @@
+## 0.0.7
+
+ - **FEAT**: effect with vibe. fix duplicate loading.
+
 ## 0.0.6+2
 
  - **REFACTOR**: `VibeBuilder` to `VibeSuspense`.

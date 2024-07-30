@@ -1,3 +1,7 @@
+## 0.0.8
+
+ - **FEAT**: effect with vibe. fix duplicate loading.
+
 ## 0.0.7+2
 
  - **FIX**: bump down `rxdart` version to support custom lint.

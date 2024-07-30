@@ -15,6 +15,37 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`vibe` - `v0.0.7`](#vibe---v007)
+ - [`vibe_cli` - `v0.0.8`](#vibe_cli---v008)
+ - [`vibe_lint` - `v0.1.4`](#vibe_lint---v014)
+
+---
+
+#### `vibe` - `v0.0.7`
+
+ - **FEAT**: effect with vibe. fix duplicate loading.
+
+#### `vibe_cli` - `v0.0.8`
+
+ - **FEAT**: effect with vibe. fix duplicate loading.
+
+#### `vibe_lint` - `v0.1.4`
+
+ - **FEAT**: effect with vibe. fix duplicate loading.
+
+
+## 2024-07-30
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`vibe` - `v0.0.6+2`](#vibe---v0062)
 
 ---
