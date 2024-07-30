@@ -9,6 +9,7 @@ part 'intifiniy.api.vibe.dart';
 class LoadInfinity extends VibeEffect with ComputeInfinityFromRemote {
   @override
   Future<Infinity> computeInfinityFromRemote() async {
+    // ignore: avoid_print
     print(counter.count);
     await Future.delayed(const Duration(seconds: 20));
     return Infinity();
