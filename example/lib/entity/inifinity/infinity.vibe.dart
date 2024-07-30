@@ -99,6 +99,7 @@ class InfinityFromRemote extends Computed {
   final void Function(Viber v)? callback;
 
   static dynamic getKey() => _InfinityFromRemoteKey();
+  static final Map<dynamic, Future> loading = {};
 
   Future<Infinity> call() async {
     final loader = (container.findEffects(ComputeInfinityFromRemote) ?? [])
@@ -117,11 +118,15 @@ class InfinityFromRemote extends Computed {
       return prev as Infinity;
     }
 
-    final src = await loader.computeInfinityFromRemote();
+    final futureSrc = loading[key] ??= loader.computeInfinityFromRemote();
+    loading[key] = futureSrc;
+    final src = await futureSrc;
     src.$key = key;
 
     final ret = $Infinity.find(container, src: src);
     parent?.addDependency(ret);
+
+    loading.remove(key);
 
     await ret.stream.first;
     callback?.call(ret);

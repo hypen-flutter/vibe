@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:recase/recase.dart';
 
 import '../type_checker/state_annotations.dart';
+import '../type_checker/state_classes.dart';
 import '../type_checker/widget_classes.dart';
 import '../utils/code_analyzer.dart';
 import '../utils/console.dart';
@@ -54,7 +55,9 @@ class StateWatcher extends Watcher {
       });
 
   Future<void> deleteGeneratedFile(String path) async {
-    await File(path.stateFile).delete();
+    if (File(path.stateFile).existsSync()) {
+      await File(path.stateFile).delete();
+    }
   }
 
   Future<void> generateStateFile(String path) async {
@@ -81,7 +84,15 @@ class StateWatcher extends Watcher {
           .map(generateWidgetExtension)
           .toList();
 
-      if (vibers.isNotEmpty || widgetExtensions.isNotEmpty) {
+      final List<Future<String>> effectExtensions = classes
+          .where(vibeEffectAnnotation.isAssignableFrom)
+          .where(withVibeAnnotation.hasAnnotationOf)
+          .map(generateEffectExtension)
+          .toList();
+
+      if (vibers.isNotEmpty ||
+          widgetExtensions.isNotEmpty ||
+          effectExtensions.isNotEmpty) {
         info('Investgating $path');
       } else {
         return;
@@ -89,10 +100,13 @@ class StateWatcher extends Watcher {
 
       final String basename = p.basename(path);
 
-      final String code =
-          (await Future.wait(<Future<String>>[...vibers, ...widgetExtensions]))
-              .where((String e) => e.isNotEmpty)
-              .join('\n');
+      final String code = (await Future.wait(<Future<String>>[
+        ...vibers,
+        ...widgetExtensions,
+        ...effectExtensions
+      ]))
+          .where((String e) => e.isNotEmpty)
+          .join('\n');
 
       final bool hasPart = code.isEmpty ||
           element.parts.any((PartElement e) {
@@ -367,6 +381,7 @@ class $computedName extends Computed {
   final void Function(Viber v)? callback;
 
   static dynamic getKey($originalParams) => $keyName($redirectParams);
+  static final Map<dynamic, Future> loading = {};
 
   Future<$className> call($originalParams) async {
     final loader = (container.findEffects($computeName) ?? [])
@@ -385,11 +400,16 @@ class $computedName extends Computed {
       return prev as $className;
     }
 
-    final src = await loader.compute$computedName($redirectParams);
+    final futureSrc = 
+      loading[key] ??= loader.compute$computedName($redirectParams);
+    loading[key] = futureSrc;
+    final src = await futureSrc;
     src.\$key = key;
 
     final ret = ${className.vibeClass}.find(container, src: src);
     parent?.addDependency(ret);
+
+    loading.remove(key);
 
     await ret.stream.first;
     callback?.call(ret);
@@ -850,6 +870,82 @@ mixin _$className on $superTypeName {
   $computedVibes
   @override
   List<Viber> get \$vibes => [$allVibes];
+}
+''';
+  }
+
+  Future<String> generateEffectExtension(ClassElement element) async {
+    final String className = element.name;
+    final List<DartType> linkedVibes = withVibeAnnotation
+        .firstAnnotationOf(element)!
+        .getField('vibes')!
+        .toListValue()!
+        .where((DartObject e) => e.toTypeValue() != null)
+        .map((DartObject e) => e.toTypeValue()!)
+        .toList();
+
+    final List<ExecutableElement> computed = withVibeAnnotation
+        .firstAnnotationOf(element)!
+        .getField('vibes')!
+        .toListValue()!
+        .where((DartObject e) => e.toFunctionValue() != null)
+        .map((DartObject e) => e.toFunctionValue()!)
+        .where((ExecutableElement e) => computedAnnotation.hasAnnotationOf(e))
+        .toList();
+
+    final String vibeGetters = linkedVibes.map((DartType type) {
+      final Element element = type.element!;
+      final String typename = type.toString();
+      if (!vibeAnnotation.hasAnnotationOf(element)) {
+        throw Exception(
+            'You can not inject non-[@Vibe()] [$typename] on [WithVibe]');
+      }
+      return '''
+$typename get ${typename.camelCase} => ${typename.vibeClass}.find(\$container);
+''';
+    }).join('\n');
+
+    final String computedVibes = computed.map((ExecutableElement e) {
+      final String name = e.name;
+      final String className = e.enclosingElement.name!;
+      final String copmutedName = className + name.pascalCase;
+      final List<ParameterElement> positionals =
+          e.parameters.where((ParameterElement p) => p.isPositional).toList();
+      final List<ParameterElement> named =
+          e.parameters.where((ParameterElement p) => p.isNamed).toList();
+      final String originalPositionals = positionals
+          .map((ParameterElement p) => '${p.type} ${p.name}')
+          .join(',');
+      final String originalNamed = named.isNotEmpty
+          ? '{${named.map(
+                (ParameterElement p) => '${p.type} ${p.name}',
+              ).join(',')}}'
+          : '';
+      final String originalParams = <String>[originalPositionals, originalNamed]
+          .where((String s) => s.isNotEmpty)
+          .join(',');
+
+      final String redirectParams = e.parameters
+          .map((ParameterElement p) =>
+              p.isNamed ? '${p.name}: ${p.name}' : p.name)
+          .join(',');
+
+      return '''
+Future<$className> ${copmutedName.camelCase}($originalParams) async {
+    final key = $copmutedName.getKey($redirectParams);
+    final ret = \$container.find(key);
+    if (ret != null) {
+      return ret;
+    }
+    return $copmutedName(\$container)($redirectParams);
+}
+''';
+    }).join('\n');
+
+    return '''
+extension _$className on $className {
+  $vibeGetters
+  $computedVibes
 }
 ''';
   }

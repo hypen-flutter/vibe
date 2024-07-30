@@ -11,8 +11,6 @@ const TypeChecker selectVibeAnnotation = TypeChecker.fromUrl(
     'package:vibe/annotations/state_annotations.dart#SelectVibe');
 const TypeChecker streamVibeAnnotation = TypeChecker.fromUrl(
     'package:vibe/annotations/state_annotations.dart#StreamVibe');
-const TypeChecker vibeEffectAnnotation = TypeChecker.fromUrl(
-    'package:vibe/annotations/state_annotations.dart#VibeEffect');
 const TypeChecker withVibeAnnotation = TypeChecker.fromUrl(
     'package:vibe/annotations/state_annotations.dart#WithVibe');
 

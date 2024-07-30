@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vibe/vibe.dart';
 
-import 'entity/counter/infinity.dart';
 import 'entity/counter/model.dart';
+import 'entity/inifinity/infinity.dart';
+import 'entity/inifinity/intifiniy.api.dart';
 
 part 'main.vibe.dart';
 

@@ -17,6 +17,7 @@ class WithGeneratedClass extends DartAssist {
 
       final withName = '_${element.name}';
       final alreadyHas = element.mixins
+          // ignore: deprecated_member_use
           .any((m) => m.getDisplayString(withNullability: false) == withName);
 
       if (alreadyHas) {

@@ -3,7 +3,7 @@ import '../vibe.dart';
 /// SideEffect of [Vibe]
 abstract class VibeEffect {
   final Set<dynamic> _effectKeys = {};
-  late VibeContainer container;
+  late VibeContainer $container;
 
   /// Initializes the effect
   ///
@@ -17,7 +17,7 @@ abstract class VibeEffect {
 
   /// Register effect to [VibeContainer]
   void register(VibeContainer container) {
-    this.container = container;
+    $container = container;
     for (final key in _effectKeys) {
       container.addEffect(key, this);
     }
