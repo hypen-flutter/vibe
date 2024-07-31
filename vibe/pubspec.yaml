@@ -1,6 +1,6 @@
 name: vibe
 description: A new declarative UI framework
-version: 0.0.7
+version: 0.0.8
 homepage: https://github.com/hypen-flutter/vibe.git
 
 environment:

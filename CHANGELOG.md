@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-08-01
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`vibe` - `v0.0.8`](#vibe---v008)
+ - [`vibe_cli` - `v0.0.9`](#vibe_cli---v009)
+
+---
+
+#### `vibe` - `v0.0.8`
+
+ - **FEAT**: Micro [VibeSuspense].
+
+#### `vibe_cli` - `v0.0.9`
+
+ - **FEAT**: Micro [VibeSuspense].
+
+
 ## 2024-07-30
 
 ### Changes

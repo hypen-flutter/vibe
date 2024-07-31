@@ -1,3 +1,7 @@
+## 0.0.9
+
+ - **FEAT**: Micro [VibeSuspense].
+
 ## 0.0.8
 
  - **FEAT**: effect with vibe. fix duplicate loading.

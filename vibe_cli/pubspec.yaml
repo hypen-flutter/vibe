@@ -1,6 +1,6 @@
 name: vibe_cli
 description: A cli tool to build [vibe] framework.
-version: 0.0.8
+version: 0.0.9
 repository: https://github.com/hypen-flutter/vibe/
 
 environment:
