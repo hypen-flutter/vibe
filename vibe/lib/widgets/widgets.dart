@@ -19,7 +19,8 @@ abstract class VibeWidget extends VibeStatefulWidget {
   /// Same as the [StatelessWidget.build]
   Widget build(BuildContext context);
 
-  List<Viber> get $vibes => [];
+  /// Fields expected as [Vibe]s
+  List<dynamic> get vibes => [];
 
   @nonVirtual
   @override
@@ -51,7 +52,7 @@ class VibeSuspense extends VibeWidget {
 
 class _VibeStatelessWidgetState extends VibeWidgetState<VibeWidget> {
   @override
-  List<Viber> get $vibes => widget.$vibes;
+  List get vibes => widget.vibes;
 
   @override
   Widget loader(BuildContext context) => widget.loader(context);
@@ -77,10 +78,19 @@ abstract class VibeStatefulWidget extends StatefulWidget {
 /// [State] for [VibeStatefulWidget]
 abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   final List<StreamSubscription> _subscriptions = <StreamSubscription>[];
-  final Set<Viber> _vibes = <Viber>{};
-  List<Viber> get $vibes => <Viber>[];
+  final Set<Viber> _registeredVibes = <Viber>{};
+
+  /// Fields expected as [Vibe]s
+  List<dynamic> get vibes => [];
+  late final Set<Viber> _manualVibes = vibes.whereType<Viber>().toSet();
+
+  /// DO NOT USE THIS
   VibeContainer get $container => VibeStatefulElement.getContainer(widget)!;
+
+  /// DO NOT USE THIS
   VibeWidgetState get $state => VibeStatefulElement.getState(widget)!;
+  bool get _manualVibeNotRegistered =>
+      _registeredVibes.length != _manualVibes.length;
 
   @override
   void initState() {
@@ -94,8 +104,7 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
     final VibeContainer container = InheritedVibeContainer.of(context);
     if (container != VibeStatefulElement.getContainer(widget)) {
       VibeStatefulElement.setContainer(widget, container);
-      clearVibes();
-      $vibes.forEach(addVibe);
+      _clearVibes();
     }
   }
 
@@ -117,7 +126,7 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
 
   @override
   void dispose() {
-    clearVibes();
+    _clearVibes();
 
     VibeStatefulElement.removeContainer(widget);
     VibeStatefulElement.removeState(widget);
@@ -125,29 +134,34 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
     super.dispose();
   }
 
-  int numReady = 0;
-  bool get ready => numReady == _vibes.length;
-
   /// Add the vibe [StreamSubscription]
   ///
   /// Users will never call this.
   @nonVirtual
   void addVibe(Viber v) {
-    if (_vibes.contains(v)) {
+    if (_registeredVibes.contains(v)) {
+      if (v.subject.valueOrNull == null) {
+        throw const LoadingVibeException();
+      }
       return;
     }
-    _vibes.add(v..ref());
+    _registeredVibes.add(v..ref());
     // Wait for the other dependencies
     if (v.subject.valueOrNull == null) {
-      v.stream.take(1).listen((_) {
-        ++numReady;
+      v.stream.first.then((_) {
         if (mounted) {
-          setState(() {});
+          setState(() {
+            _addSubscription(v);
+          });
         }
       });
+      throw const LoadingVibeException();
     } else {
-      ++numReady;
+      _addSubscription(v);
     }
+  }
+
+  void _addSubscription(Viber v) {
     _subscriptions.add(v.stream.skip(1).listen((_) {
       if (mounted) {
         setState(() {});
@@ -156,21 +170,26 @@ abstract class VibeWidgetState<T extends VibeStatefulWidget> extends State<T> {
   }
 
   /// Redirect to `setState`
+  @nonVirtual
   void rebuild() {
     setState(() {});
   }
 
   /// Clears the dependencies
-  void clearVibes() {
+  @nonVirtual
+  void _clearVibes() {
     for (final StreamSubscription s in _subscriptions) {
       s.cancel();
     }
     _subscriptions.clear();
-    for (final Viber v in _vibes) {
+    for (final Viber v in _registeredVibes) {
       v.unref();
     }
-    _vibes.clear();
-    numReady = 0;
+    _registeredVibes.clear();
+  }
+
+  void _addManualVibes() {
+    _manualVibes.forEach(addVibe);
   }
 }
 
@@ -217,7 +236,10 @@ class VibeStatefulElement extends StatefulElement {
   @override
   Widget build() {
     try {
-      return state.ready ? super.build() : state.loader(this);
+      if (state._manualVibeNotRegistered) {
+        state._addManualVibes();
+      }
+      return super.build();
     } on LoadingVibeException {
       return state.loader(this);
     } on Exception {

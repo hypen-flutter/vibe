@@ -793,29 +793,13 @@ $zipStream
             'You can not inject non-[@Vibe()] [$typename] on [WithVibe]');
       }
       return '''
-$typename get ${typename.camelCase} => ${typename.vibeClass}.find(\$container);
+$typename get ${typename.camelCase} {
+  final ret = ${typename.vibeClass}.find(\$container);
+  ${superTypeName == 'VibeWidget' ? r'$state.' : ''}addVibe(ret);
+  return ret;
+} 
 ''';
     }).join('\n');
-
-    final String vibers = linkedVibes.map((DartType type) {
-      final String typename = type.toString();
-
-      return '''
-${typename.camelCase} as Viber
-''';
-    }).join(',');
-    final String fieldsCheck = element.fields.map((FieldElement f) {
-      final String name = f.name;
-
-      return '''
-if ((this as $className).$name is Viber) 
-  (this as $className).$name as Viber
-''';
-    }).join(',');
-
-    final String allVibes = <String>[vibers, fieldsCheck]
-        .where((String s) => s.isNotEmpty)
-        .join(',');
 
     final String callback =
         superTypeName == 'VibeWidget' ? r'$state.addVibe' : 'addVibe';
@@ -868,8 +852,6 @@ $className ${copmutedName.camelCase}($originalParams) {
 mixin _$className on $superTypeName {
   $vibeGetters
   $computedVibes
-  @override
-  List<Viber> get \$vibes => [$allVibes];
 }
 ''';
   }

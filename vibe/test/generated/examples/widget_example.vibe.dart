@@ -2,18 +2,19 @@
 part of 'widget_example.dart';
 
 mixin _WidgetExample on VibeWidget {
-  Counter get counter => $Counter.find($container);
-
-  @override
-  List<Viber> get $vibes => [
-        counter as Viber,
-        if ((this as WidgetExample).suffix is Viber)
-          (this as WidgetExample).suffix as Viber
-      ];
+  Counter get counter {
+    final ret = $Counter.find($container);
+    $state.addVibe(ret);
+    return ret;
+  }
 }
 
 mixin _StatefulExampleState on VibeWidgetState<StatefulExample> {
-  Counter get counter => $Counter.find($container);
+  Counter get counter {
+    final ret = $Counter.find($container);
+    addVibe(ret);
+    return ret;
+  }
 
   Computable computableById(int id) {
     final key = ComputableById.getKey(id);
@@ -28,9 +29,6 @@ mixin _StatefulExampleState on VibeWidgetState<StatefulExample> {
     });
     throw const LoadingVibeException();
   }
-
-  @override
-  List<Viber> get $vibes => [counter as Viber];
 }
 
 mixin _WidgetWithComputed on VibeWidget {
@@ -47,10 +45,4 @@ mixin _WidgetWithComputed on VibeWidget {
     });
     throw const LoadingVibeException();
   }
-
-  @override
-  List<Viber> get $vibes => [
-        if ((this as WidgetWithComputed).id is Viber)
-          (this as WidgetWithComputed).id as Viber
-      ];
 }
