@@ -2,7 +2,11 @@
 part of 'main.dart';
 
 mixin _MainApp on VibeWidget {
-  Counter get counter => $Counter.find($container);
+  Counter get counter {
+    final ret = $Counter.find($container);
+    $state.addVibe(ret);
+    return ret;
+  }
 
   Infinity infinityFromRemote() {
     final key = InfinityFromRemote.getKey();
@@ -17,7 +21,4 @@ mixin _MainApp on VibeWidget {
     });
     throw const LoadingVibeException();
   }
-
-  @override
-  List<Viber> get $vibes => [counter as Viber];
 }
