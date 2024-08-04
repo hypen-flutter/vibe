@@ -16,6 +16,7 @@ const LinkVibe link = LinkVibe();
   TargetKind.classType,
   TargetKind.enumType,
   TargetKind.topLevelVariable,
+  TargetKind.function,
 })
 class Vibe {
   const Vibe({
@@ -42,7 +43,8 @@ class NotVibe {
   TargetKind.field,
   TargetKind.getter,
   TargetKind.setter,
-  TargetKind.method
+  TargetKind.method,
+  TargetKind.parameter,
 })
 class LinkVibe {
   const LinkVibe({this.name, this.use});
