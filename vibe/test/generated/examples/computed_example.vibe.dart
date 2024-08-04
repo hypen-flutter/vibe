@@ -30,10 +30,10 @@ class $Computable
     }
     ret = $Computable(container)..src = src;
 
-    ret.notify();
+    ret!.notify();
 
     container.add<$Computable>(src.$key, ret, overrides: overrides);
-    return ret;
+    return ret!;
   }
 
   @override
@@ -74,7 +74,9 @@ class $Computable
 
     Future(() {
       for (final effect in effects) {
-        Future(effect.didComputableIncrease);
+        Future(() {
+          effect.didComputableIncrease();
+        });
       }
     });
   }
@@ -126,6 +128,7 @@ class ComputableById extends Computed {
   final void Function(Viber v)? callback;
 
   static dynamic getKey(int id) => _ComputableByIdKey(id);
+  static final Map<dynamic, Future> loading = {};
 
   Future<Computable> call(int id) async {
     final loader = (container.findEffects(ComputeComputableById) ?? [])
@@ -139,19 +142,23 @@ class ComputableById extends Computed {
     final prev = container.find(key);
     if (prev != null) {
       parent?.addDependency(prev);
-      callback?.call(prev as Viber);
       await prev.stream.first;
+      callback?.call(prev as Viber);
       return prev as Computable;
     }
 
-    final src = await loader.computeComputableById(id);
+    final futureSrc = loading[key] ??= loader.computeComputableById(id);
+    loading[key] = futureSrc;
+    final src = await futureSrc;
     src.$key = key;
 
     final ret = $Computable.find(container, src: src);
     parent?.addDependency(ret);
-    callback?.call(ret);
+
+    loading.remove(key);
 
     await ret.stream.first;
+    callback?.call(ret);
     return ret;
   }
 }
@@ -185,11 +192,11 @@ class $ComputableUsage
       return ret;
     }
     ret = $ComputableUsage(container)..src = src;
-    src.computableById = ComputableById(container, parent: ret);
-    ret.notify();
+    src..computableById = ComputableById(container, parent: ret!);
+    ret!.notify();
 
     container.add<$ComputableUsage>(src.$key, ret, overrides: overrides);
-    return ret;
+    return ret!;
   }
 
   @override

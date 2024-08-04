@@ -3,13 +3,10 @@ part of 'collection_example.dart';
 
 mixin _Collection implements GeneratedViber<$Collection> {
   @override
-  dynamic get $key => Collection;
+  dynamic $key = Collection;
 
   @override
   dynamic get $effectKey => Collection;
-
-  @override
-  dynamic get $loaderKey => Collection;
 
   void dispose() {}
 
@@ -32,6 +29,7 @@ class $Collection
       return ret;
     }
     ret = $Collection(container)..src = src;
+
     ret!.notify();
 
     container.add<$Collection>(src.$key, ret, overrides: overrides);
@@ -48,10 +46,7 @@ class $Collection
   dynamic get $effectKey => src.$effectKey;
 
   @override
-  dynamic get $loaderKey => src.$loaderKey;
-
-  @override
-  dynamic get $key => src.$key;
+  late dynamic $key = src.$key;
 
   List<CollectionEffect> get effects =>
       (container.findEffects($effectKey) ?? [])

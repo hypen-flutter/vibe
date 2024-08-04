@@ -141,7 +141,7 @@ $code
   Future<String> generateViberClass(ClassElement element) async {
     final List<FieldElement> fields = element.fields.toList();
     final List<FieldElement> vibeFields = fields
-        .where((FieldElement e) => !notVibeAnnotation.hasAnnotationOf(e))
+        .where((FieldElement e) => !silentAnnotation.hasAnnotationOf(e))
         .toList();
     final List<FieldElement> selectionFields = fields
         .where((FieldElement e) => selectVibeAnnotation.hasAnnotationOf(e))

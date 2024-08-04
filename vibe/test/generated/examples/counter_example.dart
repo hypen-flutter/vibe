@@ -10,7 +10,7 @@ class Counter with _Counter {
 
   int count = 0;
 
-  @NotVibe()
+  @Silent()
   int? nothing = 0;
 
   final unmodifiable = 0;

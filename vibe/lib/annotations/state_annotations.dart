@@ -5,8 +5,8 @@ import 'package:meta/meta_meta.dart';
 /// [Vibe] without an argument
 const Vibe vibe = Vibe();
 
-/// [NotVibe]
-const NotVibe notVibe = NotVibe();
+/// [Silent]
+const Silent notVibe = Silent();
 
 /// [Link] without an argument
 const LinkVibe linkVibe = LinkVibe();
@@ -37,8 +37,8 @@ class Computed {
 
 /// Marks a field as not a reactive field.
 @Target(<TargetKind>{TargetKind.field})
-class NotVibe {
-  const NotVibe();
+class Silent {
+  const Silent();
 }
 
 /// Marks a field to connect it to the other [Vibe] state.

@@ -3,13 +3,10 @@ part of 'injection_example.dart';
 
 mixin _Derived implements GeneratedViber<$Derived> {
   @override
-  dynamic get $key => Derived;
+  dynamic $key = Derived;
 
   @override
   dynamic get $effectKey => Derived;
-
-  @override
-  dynamic get $loaderKey => Derived;
 
   void dispose() {}
   VibeFutureOr<int> $selectCount(Counter counter);
@@ -33,6 +30,7 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
       return ret;
     }
     ret = $Derived(container)..src = src;
+
     final $Counter counter = $Counter.find(container);
 
     ret..addDependency(counter);
@@ -73,10 +71,7 @@ class $Derived with VibeEquatableMixin, Viber<$Derived> implements Derived {
   dynamic get $effectKey => src.$effectKey;
 
   @override
-  dynamic get $loaderKey => src.$loaderKey;
-
-  @override
-  dynamic get $key => src.$key;
+  late dynamic $key = src.$key;
 
   List<DerivedEffect> get effects => (container.findEffects($effectKey) ?? [])
       .map((e) => e as DerivedEffect)

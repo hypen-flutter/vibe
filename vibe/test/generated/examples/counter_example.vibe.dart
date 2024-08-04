@@ -3,13 +3,10 @@ part of 'counter_example.dart';
 
 mixin _Counter implements GeneratedViber<$Counter> {
   @override
-  dynamic get $key => Counter;
+  dynamic $key = Counter;
 
   @override
   dynamic get $effectKey => Counter;
-
-  @override
-  dynamic get $loaderKey => Counter;
 
   void dispose() {}
 
@@ -30,6 +27,7 @@ class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
       return ret;
     }
     ret = $Counter(container)..src = src;
+
     ret!.notify();
 
     container.add<$Counter>(src.$key, ret, overrides: overrides);
@@ -46,10 +44,7 @@ class $Counter with VibeEquatableMixin, Viber<$Counter> implements Counter {
   dynamic get $effectKey => src.$effectKey;
 
   @override
-  dynamic get $loaderKey => src.$loaderKey;
-
-  @override
-  dynamic get $key => src.$key;
+  late dynamic $key = src.$key;
 
   List<CounterEffect> get effects => (container.findEffects($effectKey) ?? [])
       .map((e) => e as CounterEffect)
