@@ -1,3 +1,7 @@
+## 0.0.9
+
+ - **FEAT**(lint): add annotation lint.
+
 ## 0.0.8
 
  - **FEAT**: Micro [VibeSuspense].

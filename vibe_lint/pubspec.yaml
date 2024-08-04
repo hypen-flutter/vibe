@@ -1,6 +1,6 @@
 name: vibe_lint
 description: A linter for [vibe] framework.
-version: 0.1.4
+version: 0.1.5
 repository: https://github.com/hypen-flutter/vibe.git
 
 environment:

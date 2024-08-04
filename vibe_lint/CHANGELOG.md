@@ -1,3 +1,7 @@
+## 0.1.5
+
+ - **FEAT**(lint): add annotation lint.
+
 ## 0.1.4
 
  - **FEAT**: effect with vibe. fix duplicate loading.
