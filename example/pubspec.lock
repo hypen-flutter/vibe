@@ -430,7 +430,7 @@ packages:
       path: "../vibe"
       relative: true
     source: path
-    version: "0.0.7"
+    version: "0.0.8"
   vibe_lint:
     dependency: "direct dev"
     description:

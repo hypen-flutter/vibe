@@ -1,3 +1,9 @@
+import 'package:vibe/vibe.dart';
+
 class VibeLayout {}
 
-class RootLayout extends VibeLayout {}
+@WithVibe([])
+class RootLayout extends VibeLayout {
+  @Computed()
+  external factory RootLayout.hello();
+}

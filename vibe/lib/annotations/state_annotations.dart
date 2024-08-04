@@ -9,7 +9,10 @@ const Vibe vibe = Vibe();
 const NotVibe notVibe = NotVibe();
 
 /// [Link] without an argument
-const LinkVibe link = LinkVibe();
+const LinkVibe linkVibe = LinkVibe();
+
+/// [Computed] without an argument
+const Computed computed = Computed();
 
 /// Marks a class as it is a reactive state class
 @Target(<TargetKind>{
