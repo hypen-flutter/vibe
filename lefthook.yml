@@ -20,6 +20,12 @@ pre-commit:
         - "*.vibe.dart"
       run: dart analyze {staged_files}
 
+post-checkout:
+  commands:
+    sync_main:
+      run: |
+        git pull origin main
+
 pre-push:
   commands:
     test_cli:
