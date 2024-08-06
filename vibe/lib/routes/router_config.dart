@@ -1,30 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:vibe/vibe.dart';
-
-abstract class VibeStack {
-  void Function()? get onPopRequest => null;
-}
-
-class HomeStack extends VibeStack {
-  HomeStack({
-    this.onPopRequest,
-    this.child,
-  });
-  @override
-  final void Function()? onPopRequest;
-  final VibeStack? child;
-}
-
-@WithVibe([])
-class RootStack extends VibeStack {
-  VibeStack build(BuildContext context) {
-    return HomeStack(
-      onPopRequest: () {},
-      child: HomeStack(),
-    );
-  }
-}
 
 class VibeRouterConfig implements RouterConfig {
   VibeRouterConfig() {
@@ -84,9 +59,7 @@ class VibeRouterDelegate extends RouterDelegate
   }
 
   @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
+  Widget build(BuildContext context) => const Placeholder();
 
   @override
   Future<bool> popRoute() {
