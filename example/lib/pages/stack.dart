@@ -2,12 +2,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vibe/vibe.dart';
 
-class VibeStack {}
+abstract class VibeStack {
+  void Function()? get onPopRequest => null;
+}
+
+class HomeStack extends VibeStack {
+  HomeStack({
+    this.onPopRequest,
+    this.child,
+  });
+  @override
+  final void Function()? onPopRequest;
+  final VibeStack? child;
+}
 
 @WithVibe([])
 class RootStack extends VibeStack {
-  List<Page> build(BuildContext context) {
-    return [];
+  VibeStack build(BuildContext context) {
+    return HomeStack(
+      onPopRequest: () {},
+      child: HomeStack(),
+    );
   }
 }
 

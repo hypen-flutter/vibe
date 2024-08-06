@@ -4,7 +4,7 @@ import 'package:vibe/vibe.dart';
 enum HomeState {
   main,
   find,
-  settings,
+  settings;
 }
 
 extension HomeStateToVibe on HomeState {
