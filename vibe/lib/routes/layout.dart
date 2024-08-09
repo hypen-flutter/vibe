@@ -1,21 +1,18 @@
 import 'package:flutter/widgets.dart';
 
-class VibeLayout {
-  Widget buildEnterTransition(Widget page) => page;
+mixin BuildTransition {
+  Widget buildEnterTransition(Widget page, Animation<double> animation) => page;
 
-  Widget buildPushedTransition(Widget page) => page;
+  Widget buildCoverTransition(Widget page, Animation<double> animation) => page;
 
-  Widget buildPoppedTransition(Widget page) => page;
+  Widget buildUncoverTransition(Widget page, Animation<double> animation) =>
+      page;
 
-  Widget buildExitTransition(Widget page) => page;
+  Widget buildExitTransition(Widget page, Animation<double> animation) => page;
 }
 
-class VibePage {
-  Widget buildEnterTransition(Widget page) => page;
+abstract class VibeLayout with BuildTransition {}
 
-  Widget buildPushedTransition(Widget page) => page;
+abstract class VibeView with BuildTransition {}
 
-  Widget buildPoppedTransition(Widget page) => page;
-
-  Widget buildExitTransition(Widget page) => page;
-}
+abstract class VibeTemplate with BuildTransition {}

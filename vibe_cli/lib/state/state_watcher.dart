@@ -90,9 +90,16 @@ class StateWatcher extends Watcher {
           .map(generateEffectExtension)
           .toList();
 
+      final List<Future<String>> enumState = element.topLevelElements
+          .whereType<EnumElement>()
+          .where((EnumElement e) => vibeAnnotation.hasAnnotationOf(e))
+          .map(generateEnumState)
+          .toList();
+
       if (vibers.isNotEmpty ||
           widgetExtensions.isNotEmpty ||
-          effectExtensions.isNotEmpty) {
+          effectExtensions.isNotEmpty ||
+          enumState.isNotEmpty) {
         info('Investgating $path');
       } else {
         return;
@@ -103,7 +110,8 @@ class StateWatcher extends Watcher {
       final String code = (await Future.wait(<Future<String>>[
         ...vibers,
         ...widgetExtensions,
-        ...effectExtensions
+        ...effectExtensions,
+        ...enumState,
       ]))
           .where((String e) => e.isNotEmpty)
           .join('\n');
@@ -929,6 +937,126 @@ extension _$className on $className {
   $vibeGetters
   $computedVibes
 }
+''';
+  }
+
+  Future<String> generateEnumState(EnumElement element) async {
+    final String className = element.name;
+    final String vibeClassName = '${className}State';
+    final List<FieldElement> fields = element.augmented.constants;
+    final String defaultValue = fields.first.name;
+    final bool autoDispose = vibeAnnotation
+            .firstAnnotationOf(element)
+            ?.getField('autoDispose')
+            ?.toBoolValue() ??
+        true;
+
+    final String state = '''
+class $vibeClassName with VibeEquatableMixin, Viber<$vibeClassName> {
+  $vibeClassName._(this.container);
+
+  factory $vibeClassName.find(VibeContainer container,
+    {$className src = $className.$defaultValue, bool overrides = false}) {
+    $vibeClassName? ret = 
+      overrides ? null : container.find<$vibeClassName>($className);
+    if (ret != null) {
+      return ret;
+    }
+    ret = $vibeClassName._(container)
+      .._src = src
+      ..notify();
+
+    container.add<$vibeClassName>($className, ret, overrides: overrides);
+    return ret;
+  }
+
+  @override
+  final VibeContainer container;
+
+  @override
+  bool get autoDispose => $autoDispose;
+
+  @override
+  dynamic get \$effectKey => $className;
+
+  @override
+  late dynamic \$key = $className;
+
+  List<${className}Effect> get effects
+        => (container.findEffects(\$effectKey) ?? [])
+            .map((e) => e as ${className}Effect)
+            .toList();
+
+  $className _src = $className.$defaultValue;
+  $className get state => _src;
+  set state($className val) {
+    _src = val;
+    Future(() {
+      effects.forEach((e) => e.did${className}Changed(this));
+    });
+    notify();
+  }
+
+  @override
+  List<Object?> get props => <Object?>[_src];
+
+
+  ${fields.map((FieldElement f) => '''
+bool get is${f.name} => state == $className.${f.name};
+''').join('\n')}
+
+  T map<T>({
+    ${fields.map((FieldElement f) => '''
+T Function($vibeClassName vibe)? on${f.name.titleCase}
+''').join(',')},
+    T Function($vibeClassName vibe)? orElse,
+  }) {
+    assert(
+        (
+        ${fields.map((FieldElement f) => '''
+on${f.name.titleCase} != null
+''').join('&&')}
+        ) || orElse != null,
+        'You must provide at least [orElse]');
+    return switch (state) {
+    ${fields.map((FieldElement f) => '''
+$className.${f.name} => on${f.name.titleCase}?.call(this) ?? orElse!(this)
+''').join(',')}
+    };
+  }
+
+  ${fields.map((FieldElement f) => '''
+void to${f.name.titleCase}() {
+  state = $className.${f.name};
+}
+''').join('\n')}
+}
+''';
+    final String toVibe = '''
+extension ${className}ToVibe on $className {
+  $vibeClassName Function(VibeContainer container, {bool override}) toVibe() =>
+      (VibeContainer container, {bool override = false}) =>
+          $vibeClassName.find(container, src: this, overrides: override);
+}
+''';
+    final String effect = '''
+mixin ${className}Effect on VibeEffect {
+  @override
+  void init() {
+    addKey($className);
+  }
+
+  Future<void> did${className}Changed($vibeClassName vibe) async {}
+}
+
+''';
+
+    return '''
+$state
+
+$toVibe
+
+$effect
 ''';
   }
 }

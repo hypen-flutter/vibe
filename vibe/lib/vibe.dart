@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 
 export 'annotations/state_annotations.dart';
 export 'routes/layout.dart';
+export 'routes/route.dart';
 export 'routes/router_config.dart';
 export 'states/container.dart';
 export 'states/effect.dart';
